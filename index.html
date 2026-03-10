@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全球半導體產業：完整學習指南</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'], serif: ['Merriweather','serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+    .animate-fade-in { animation: fadeInUp 0.5s ease-out forwards; }
+    .perspective { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+  </style>
+</head>
+<body class="bg-[#f4f4f4] dark:bg-[#121212] font-sans selection:bg-[#004030] selection:text-white dark:selection:bg-[#D8C3A5] dark:selection:text-[#004030] transition-colors duration-300">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ── SVG Icons ──────────────────────────────────────────────────
+const I = (d, extra="") => ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{__html:d}}/>;
+const IconMenu       = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>;
+const IconX          = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconMoon       = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>;
+const IconSun        = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-8.49-5.51 1.41-1.41M18.36 5.64l1.41-1.41M2 12h2M20 12h2m-5.51 8.49-1.41-1.41M5.64 5.64 4.22 4.22"/></svg>;
+const IconChevronRight=({size=24,className=""})=> <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"/></svg>;
+const IconChevronUp  = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15"/></svg>;
+const IconArrowRight = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+const IconGlobe      = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>;
+const IconPlay       = ({size=24,fill="none",className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+const IconPause      = ({size=24,fill="none",className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+const IconSquare     = ({size=24,fill="none",className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>;
+const IconActivity   = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>;
+const IconCpu        = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>;
+const IconTrendingUp = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+const IconLayers     = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+const IconFlag       = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>;
+const IconZap        = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const IconFlask     = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 3h6"/><path d="M10 3v7l-4 8h12l-4-8V3"/><path d="M6.5 14.5h11"/></svg>;
+const IconZapLab    = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.58 16.5h12.85"/></svg>;
+const IconAlertTriangle=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+const IconCheckCircle=({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+const IconBookOpen   = ({size=24,className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+
+// ── Dictionary ─────────────────────────────────────────────────
+const dict = {
+  zh: {
+    title: "全球半導體產業：完整學習指南",
+    subtitle: "從電晶體到AI晶片，掌握驅動現代世界的核心技術",
+    nav_modules: "單元目錄",
+    nav_prev: "上一單元", nav_next: "下一單元",
+    key_terms: "關鍵專有名詞",
+    flip_prompt: "點擊翻轉",
+    audio_read: "語音導覽",
+    quiz_title: "模組知識檢定 (隨機 4 題)",
+    submit: "提交答案", retry: "重新測驗",
+    score: "得分", correct: "正確", incorrect: "錯誤", explanation: "解析",
+    analytics_title: "學習歷程與成效分析",
+    analytics_desc: "追蹤您在各模組的互動狀況、投入時間與知識吸收率。",
+    analytics_form_title: "填寫基本資料以啟用匯出功能",
+    analytics_group: "組別", analytics_dept: "系級",
+    analytics_dept_ph: "例：IBS3", analytics_id: "學號",
+    analytics_id_ph: "例：112212099", analytics_name: "姓名",
+    analytics_name_ph: "例：Jimmy Lo",
+    analytics_export_csv: "匯出 CSV 歷程記錄",
+    analytics_fill_required: "請填寫完整資訊以解鎖匯出",
+    group_options: ["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","Others"],
+    analytics_total_time: "總學習時間", analytics_total_clicks: "總互動點擊",
+    analytics_overall_acc: "總體測驗答對率",
+    analytics_module: "模組", analytics_time: "停留時間",
+    analytics_clicks: "點擊次數", analytics_acc: "答對率",
+    analytics_correct_ans_total: "答對 / 已填答 / 總題數",
+    analytics_no_data: "尚未測驗", analytics_sec: "秒", analytics_times: "次",
+
+    // M0 Overview
+    m0_nav: "0. 課程總覽",
+    m0_title: "全球半導體產業：課程總覽",
+    m0_intro: "半導體，是現代文明不可或缺的基石。從你手中的智慧手機、汽車裡的安全系統、醫院裡的診斷設備，到掌控全球金融市場的伺服器，每一個現代科技奇蹟的背後，都離不開這片小小的矽晶片。本課程將帶領你從產業歷史、核心技術、全球供應鏈到地緣政治影響，全面掌握驅動21世紀世界的關鍵產業。",
+    m0_why: "為什麼半導體如此重要？",
+    m0_why_desc: "2021年的全球晶片短缺，讓數百萬輛汽車無法出廠、醫療設備斷貨、電子產品等貨數月。一場危機揭示了深刻真相：沒有晶片，現代工業文明幾乎無法運轉。半導體已不僅是科技產品，更是國家安全、經濟主權與戰略競爭的核心資產。",
+    m0_modules: [
+      { num: "01", title: "產業發展歷程", desc: "從1947年電晶體發明到AI晶片時代，追溯半導體產業75年演進史與摩爾定律的崛起與挑戰。" },
+      { num: "02", title: "技術發展歷程", desc: "深入解析FinFET、GAA、EUV微影、HBM記憶體與先進封裝等推動半導體性能持續進步的核心技術。" },
+      { num: "03", title: "重點廠商與產品", desc: "剖析上游設備材料、中游晶圓製造、下游IC設計與封測的關鍵玩家，從ASML到台積電到英偉達。" },
+      { num: "04", title: "各國產業比較", desc: "比較美、台、韓、日、中、歐六大半導體強權的優勢、政策與風險，解讀晶片地緣政治新格局。" },
+      { num: "05", title: "跨產業影響", desc: "探索半導體如何重塑AI、電動車、雲端運算、醫療等產業，以及對社會數位落差的深遠影響。" },
+    ],
+    m0_stats: [
+      { val: "$5,269億", label: "2023全球市場規模" },
+      { val: ">60%", label: "台積電先進製程市佔" },
+      { val: "$1兆+", label: "預計2030年市場規模" },
+      { val: "190億+", label: "旗艦SoC電晶體數量" },
+    ],
+    m0_start: "開始學習 →",
+
+    // M1 產業發展歷程與現況
+    m1_nav: "1. 產業發展歷程",
+    m1_title: "產業發展歷程與現況",
+    m1_p1: "半導體產業的歷史，是一部人類智慧不斷突破物理極限的史詩。1947年，貝爾實驗室的三位物理學家發明電晶體，開啟了現代電子時代。這項發明取代了體積龐大、耗能極高的真空管，使電子設備得以小型化。1958年，德州儀器的傑克·基爾比與快捷半導體的羅伯特·諾伊斯幾乎同時發明了積體電路（IC），將多個電晶體整合於單一晶片上，奠定了現代半導體產業的基石。",
+    m1_p2: "1965年，英特爾共同創辦人戈登·摩爾提出著名的「摩爾定律」：積體電路上的電晶體數量約每兩年翻倍，性能也隨之提升而成本下降。這個預測成為半導體產業超過五十年的發展指引，驅動業界不斷縮小製程節點。然而，隨著製程逼近物理極限（目前已達2奈米以下），摩爾定律的延續面臨嚴峻挑戰，產業正尋求透過3D堆疊、異質整合等新架構突破瓶頸。",
+    m1_p3: "進入2020年代，半導體產業已成為全球最重要的戰略性產業之一。2023年全球半導體市場規模約5,269億美元，預計2030年將突破一兆美元。隨著AI、5G、電動車、物聯網等新興應用爆發，對高性能、高能效晶片的需求持續攀升。台灣、南韓、美國、日本、中國與歐盟紛紛將半導體列為國家戰略核心，展開激烈的技術競賽與產業布局。",
+    m1_era1: "電晶體時代 (1947–1960s)",
+    m1_era1_desc: "貝爾實驗室發明點接觸電晶體（1947），取代真空管。傑克·基爾比（德儀）與諾伊斯（快捷）分別發明積體電路（1958/1959），標誌著微電子時代的到來。",
+    m1_era2: "摩爾定律時代 (1965–2010s)",
+    m1_era2_desc: "英特爾x86架構主導PC時代，製程從微米縮至奈米。DRAM、NAND Flash、GPU等關鍵元件相繼問世。台積電（1987）確立晶圓代工模式，重塑產業分工結構。",
+    m1_era3: "後摩爾定律時代 (2020s–)",
+    m1_era3_desc: "製程節點逼近物理極限，產業轉向3D堆疊（HBM記憶體）、Chiplet異質整合、先進封裝。AI加速器（GPU/TPU/NPU）需求爆炸性成長，地緣政治使供應鏈重組加速。",
+    m1_highlight: "關鍵數據：2023年全球半導體市場",
+    m1_highlight_desc: "市場規模 ~5,269億美元｜台積電市值超越5,000億美元｜全球前十大晶片商營收佔整體市場逾60%｜AI晶片需求年增超過50%",
+    m1_terms: [
+      { front: "積體電路 (IC)", back: "Integrated Circuit，將多個電子元件（電晶體、電阻、電容等）整合於單一半導體基板上的電子元件，是現代電子設備的核心。" },
+      { front: "摩爾定律 (Moore's Law)", back: "1965年戈登·摩爾觀察到的規律：積體電路上電晶體的數量約每兩年翻倍。雖已接近物理極限，仍是業界創新的重要參照指標。" },
+      { front: "製程節點 (Process Node)", back: "以奈米（nm）為單位，描述晶片中最小電晶體特徵的尺寸。數字越小代表技術越先進，如台積電的3nm、2nm製程。" }
+    ],
+    m1_q: [
+      { q: "電晶體是在哪一年、由哪個機構發明的？", opts: ["1947年，貝爾實驗室","1958年，德州儀器","1965年，英特爾","1987年，台積電"], ans: 0, exp: "1947年，貝爾實驗室的蕭克利、巴丁與布拉頓發明了點接觸電晶體，三人並因此獲得1956年諾貝爾物理學獎。" },
+      { q: "摩爾定律的核心內容是什麼？", opts: ["半導體市場每兩年翻倍","電晶體數量約每兩年翻倍","晶片售價每年下降50%","製程節點每年縮小一半"], ans: 1, exp: "摩爾定律指出積體電路上電晶體的數量約每兩年翻倍，同時性能提升而成本下降，是半導體產業50多年發展的核心驅動力。" },
+      { q: "台積電成立於哪一年，其確立了哪種商業模式？", opts: ["1968年，IDM模式","1987年，晶圓代工（Foundry）模式","1993年，設計代工模式","2000年，無廠設計模式"], ans: 1, exp: "台積電於1987年由張忠謀創立，確立了專業晶圓代工（Pure-Play Foundry）模式，使IC設計公司得以無需自建晶圓廠，改變了整個產業結構。" },
+      { q: "「後摩爾定律時代」產業界主要採用哪些策略來延續性能提升？", opts: ["繼續縮小製程節點至0.1nm","3D堆疊、Chiplet異質整合、先進封裝","改用碳管取代矽","增加晶片面積而非縮小節點"], ans: 1, exp: "隨著製程節點趨近物理極限，業界轉向透過3D IC堆疊（如HBM記憶體）、Chiplet小晶片異質整合及先進封裝技術延續每一代產品的性能提升。" },
+      { q: "2023年全球半導體市場規模約為多少？", opts: ["約2,000億美元","約3,500億美元","約5,269億美元","約8,000億美元"], ans: 2, exp: "2023年全球半導體市場規模約5,269億美元，受AI、5G與電動車等驅動，預計2030年將超越一兆美元。" },
+      { q: "積體電路（IC）的發明者是誰？", opts: ["威廉·蕭克利","傑克·基爾比與羅伯特·諾伊斯","戈登·摩爾","張忠謀"], ans: 1, exp: "積體電路由德州儀器的傑克·基爾比（1958）和快捷半導體的羅伯特·諾伊斯（1959）幾乎同時獨立發明，基爾比因此獲得2000年諾貝爾物理學獎。" },
+      { q: "以下哪項最能描述摩爾定律面臨的挑戰？", opts: ["晶片設計工程師不足","製程節點逼近原子尺度等物理極限","市場需求增長趨緩","缺乏資金投入研發"], ans: 1, exp: "當電晶體尺寸縮小至個位數奈米甚至更小時，量子隧穿效應、漏電流等量子物理現象使縮放變得極為困難，這是摩爾定律延續的根本挑戰。" },
+      { q: "哪個新興應用領域是推動2020年代半導體需求增長的最大驅動力之一？", opts: ["傳統家電智慧化","人工智慧（AI）","印刷電路板","傳統工業自動化"], ans: 1, exp: "AI模型訓練與推論需要大量高性能GPU、TPU等AI加速晶片，是2020年代半導體需求最強勁的驅動力，帶動英偉達、台積電等廠商業績大幅成長。" }
+    ],
+
+    // M2 技術發展歷程與現狀
+    m2_nav: "2. 技術發展歷程",
+    m2_title: "技術發展歷程與現狀",
+    m2_p1: "半導體技術的核心是製程技術（Fabrication Process），即在矽晶圓上製造電晶體的方法。主流技術從CMOS平面製程，演進至FinFET立體電晶體（16nm起），再到台積電最新的3nm GAA（Gate-All-Around）奈米片（Nanosheet）架構。每一次架構革新都是為了在更小的空間內塞入更多電晶體，同時控制漏電流與功耗。",
+    m2_p2: "除了邏輯晶片製程，記憶體技術同樣關鍵。DRAM（動態隨機存取記憶體）從DDR到現在的HBM（高頻寬記憶體），容量與頻寬持續提升；NAND Flash從2D平面堆疊到現在超過200層的3D NAND，儲存密度大幅增加。SK海力士於2024年推出的HBM3E是目前最先進的記憶體產品，直接封裝於AI加速器旁邊，解決了AI訓練的記憶體頻寬瓶頸。",
+    m2_p3: "封裝技術（Packaging）已成為性能競爭的新戰場。傳統wire bonding已不敷使用，取而代之的是台積電CoWoS（Chip-on-Wafer-on-Substrate）、SoIC（System on Integrated Chips）等先進封裝技術，可將多個晶片（如GPU核心與HBM記憶體）緊密整合於同一封裝內，大幅提升頻寬與降低延遲。這也是英偉達H100/H200/B200系列GPU的核心競爭力所在。",
+    m2_tech1: "邏輯製程演進",
+    m2_tech1_items: [
+      { era: "平面 MOSFET", nm: "≥28nm", desc: "傳統平面電晶體，2D結構，漏電流控制能力有限。" },
+      { era: "FinFET", nm: "16–7nm", desc: "立體鰭式電晶體，三面控制閘極，大幅改善漏電控制。三星、台積電、英特爾均採用。" },
+      { era: "GAA (Nanosheet)", nm: "3–2nm", desc: "Gate-All-Around，閘極四面包覆通道，更優異的電控能力。台積電N2、三星SF3率先量產。" },
+      { era: "CFET / 2D材料", nm: "<1nm（研究中）", desc: "互補式FET垂直堆疊或二硫化鉬（MoS₂）等2D材料，次世代研究方向。" },
+    ],
+    m2_terms: [
+      { front: "FinFET", back: "Fin Field-Effect Transistor，鰭式場效應電晶體。以垂直的矽鰭片作為電流通道，閘極從三面包覆，大幅減少漏電流。Intel 22nm率先量產（2011）。" },
+      { front: "EUV 極紫外光微影", back: "Extreme Ultraviolet Lithography，使用13.5nm波長光源進行晶片圖案曝光。由ASML壟斷供應High-NA EUV機台，是7nm以下製程的必要設備。" },
+      { front: "先進封裝 (Advanced Packaging)", back: "將多顆晶片高密度整合於單一封裝的技術，包括台積電CoWoS、InFO，三星I-Cube等。是AI時代提升系統性能的關鍵路徑，已成為「第二戰場」。" }
+    ],
+    m2_q: [
+      { q: "FinFET電晶體相較於傳統平面MOSFET的最大優勢是什麼？", opts: ["製造成本更低","從三面控制閘極，大幅降低漏電流","可在更高溫度下工作","完全消除了量子隧穿效應"], ans: 1, exp: "FinFET採用立體鰭狀結構，閘極從三面（或兩側+頂部）包覆電流通道，比平面MOSFET對電流有更強的控制能力，可有效抑制短通道效應和漏電流。" },
+      { q: "EUV微影技術的全球唯一供應商是哪家公司？", opts: ["應用材料（Applied Materials）","科磊（KLA）","ASML","泛林集團（Lam Research）"], ans: 2, exp: "荷蘭的ASML是全球唯一能製造EUV光刻機的公司，每台機器售價超過1.5億美元，是7nm以下先進製程不可缺少的關鍵設備。" },
+      { q: "GAA（Gate-All-Around）電晶體相較於FinFET的改進在哪裡？", opts: ["使用了新型半導體材料","閘極從四面完整包覆通道，控制能力更佳","縮短了電流通道長度","使用了更薄的氧化層"], ans: 1, exp: "GAA技術讓閘極可從四面完整包覆奈米片（Nanosheet）通道，電流控制能力遠優於FinFET的三面包覆，是3nm以下製程的主流架構。" },
+      { q: "HBM（高頻寬記憶體）主要解決了AI運算的什麼瓶頸？", opts: ["運算速度不足","記憶體頻寬不足","能源效率低下","晶片面積過大"], ans: 1, exp: "AI模型（尤其是LLM大型語言模型）需要大量的記憶體頻寬來快速存取參數。HBM透過3D堆疊與矽穿孔（TSV）技術，提供遠超傳統GDDR的記憶體頻寬。" },
+      { q: "台積電的CoWoS先進封裝技術主要整合了哪些元件？", opts: ["CPU與南北橋晶片","GPU核心與HBM記憶體","NAND Flash與DRAM","感測器與微控制器"], ans: 1, exp: "CoWoS（Chip on Wafer on Substrate）是台積電的旗艦先進封裝技術，主要將GPU/AI加速器核心與HBM記憶體堆疊整合，廣泛用於英偉達A100/H100/H200等高階AI晶片。" },
+      { q: "3D NAND Flash相較於2D NAND的核心技術突破是什麼？", opts: ["使用了更小的儲存單元","垂直堆疊儲存層，大幅提升儲存密度","採用了新型絕緣材料","改用DDR介面傳輸"], ans: 1, exp: "3D NAND透過垂直堆疊方式，目前最先進者已超過200層，在不縮小單元面積的情況下大幅提升儲存密度，解決了2D NAND繼續縮小面臨的物理極限。" },
+      { q: "以下哪個技術是被視為摩爾定律終結後的替代路徑之一？", opts: ["繼續縮小至0.1nm","Chiplet異質整合","改用鍺（Ge）取代矽","增加CPU核心數量至1000個"], ans: 1, exp: "Chiplet異質整合是指將不同功能的小晶片（如CPU核心、I/O、記憶體控制器）分開製造後，再透過先進封裝整合，可大幅降低成本並提升良率，是後摩爾時代的重要策略。" },
+      { q: "目前哪家公司率先在3nm製程上採用GAA（奈米片）架構量產？", opts: ["英特爾","台積電","三星電子","格羅方德"], ans: 2, exp: "三星電子於2022年宣布其3GAE製程採用GAA架構量產，但台積電的N3製程仍沿用FinFET，台積電的GAA（稱為GAAFET/Nanosheet）預計在N2（2nm）製程導入並已於2025年量產。" }
+    ],
+
+    // M3 上中下游重點廠商
+    m3_nav: "3. 重點廠商與產品",
+    m3_title: "上中下游重點廠商與產品",
+    m3_p1: "半導體產業有著高度精細的垂直分工，可分為上游（設備與材料）、中游（晶圓製造）、下游（IC設計與封測）三大環節。每個環節都有其關鍵廠商，而這種分工模式也造就了台積電、ASML、艾司摩爾等「隱形冠軍」的全球壟斷地位。",
+    m3_p2: "垂直整合製造商（IDM，Integrated Device Manufacturer）如英特爾、三星、德州儀器，自行設計並製造晶片；無廠設計（Fabless）公司如英偉達、超微（AMD）、高通、蘋果，只負責設計；台積電、聯電等純晶圓代工（Pure-Play Foundry）廠則只負責製造。這種分工使得不同企業可以專注於自己最擅長的環節，形成高效的全球供應鏈。",
+    m3_upstream: [
+      { name: "ASML（荷蘭）", role: "EUV/DUV微影設備", desc: "全球唯一EUV光刻機製造商，市值逾3,000億美元。High-NA EUV機台是2nm以下製程的關鍵。" },
+      { name: "應用材料（美）", role: "薄膜沉積、蝕刻設備", desc: "全球最大半導體設備公司，提供CVD、PVD、ALD等製程設備，年營收超過250億美元。" },
+      { name: "東京電子 TEL（日）", role: "塗布顯影、蝕刻設備", desc: "日本最大半導體設備商，提供塗布顯影機、熱處理設備等，為日本設備業龍頭。" },
+      { name: "信越化學/Shin-Etsu（日）", role: "矽晶圓材料", desc: "全球最大矽晶圓供應商，市佔率約30%。另提供光阻材料等關鍵化學品。" },
+    ],
+    m3_midstream: [
+      { name: "台積電（台灣）", role: "先進邏輯晶圓代工", desc: "全球最大純晶圓代工廠，市佔率逾60%。掌握全球最先進的3nm/2nm製程，客戶包括蘋果、英偉達、超微。" },
+      { name: "三星電子（韓）", role: "IDM + 晶圓代工", desc: "全球最大記憶體（DRAM/NAND）廠，同時是台積電最主要競爭對手，亦為全球最大手機晶片廠。" },
+      { name: "英特爾（美）", role: "IDM，CPU/伺服器晶片", desc: "全球最大IDM，正透過Intel Foundry Service（IFS）重建代工業務，18A製程計畫於2025年量產。" },
+      { name: "SK海力士（韓）", role: "DRAM/HBM記憶體", desc: "全球第二大記憶體廠，是HBM（高頻寬記憶體）的技術領導者，主要供貨對象為英偉達AI晶片。" },
+    ],
+    m3_downstream: [
+      { name: "英偉達 NVIDIA（美）", role: "GPU/AI加速器設計", desc: "全球AI晶片龍頭，H100/H200/B200系列GPU主導AI訓練市場，2023年市值一度突破3兆美元。" },
+      { name: "蘋果（美）", role: "AP/SoC設計", desc: "自研A系列（iPhone）與M系列（Mac）晶片，均由台積電代工，是晶片設計與系統整合的標竿。" },
+      { name: "高通（美）", role: "手機AP/通訊晶片", desc: "全球最大手機AP與基頻晶片設計公司，Snapdragon系列主導安卓高階手機市場。" },
+      { name: "日月光/ASE（台灣）", role: "封裝測試（OSAT）", desc: "全球最大半導體封裝測試廠，提供傳統封裝至先進封裝服務，是台積電CoWoS的重要夥伴。" },
+    ],
+    m3_terms: [
+      { front: "IDM (整合元件製造商)", back: "Integrated Device Manufacturer，從IC設計、晶圓製造到封裝測試均自行完成的垂直整合廠商，如英特爾、三星、德州儀器。優點是技術協同，缺點是資本密集。" },
+      { front: "Fabless (無廠設計)", back: "僅負責IC設計，委託晶圓代工廠製造的商業模式。英偉達、蘋果、高通、超微均採此模式，使設計公司得以專注研發而無需承擔高額製造成本。" },
+      { front: "OSAT (封裝測試廠)", back: "Outsourced Semiconductor Assembly and Test，提供外包封裝與測試服務的廠商，如日月光（ASE）、力成、京元電等台灣廠商，以及中國的長電科技等。" }
+    ],
+    m3_q: [
+      { q: "以下哪家公司是全球唯一EUV光刻機的製造商？", opts: ["應用材料（Applied Materials）","科磊（KLA）","ASML","尼康（Nikon）"], ans: 2, exp: "荷蘭ASML是全球唯一能生產EUV光刻機的公司，其技術對全球先進晶片製造具有不可取代的戰略意義。" },
+      { q: "「Fabless」無廠設計模式的代表廠商是哪家？", opts: ["英特爾（Intel）","三星電子","德州儀器（TI）","英偉達（NVIDIA）"], ans: 3, exp: "英偉達是最典型的Fabless（無廠）設計公司，其晶片設計後委託台積電等晶圓代工廠製造，自身不擁有任何晶圓廠。" },
+      { q: "台積電在全球先進邏輯晶圓代工市場的市佔率約為多少？", opts: ["約30%","約45%","約60%以上","約80%"], ans: 2, exp: "台積電在10nm以下先進製程的晶圓代工市場市佔率超過60%，在最先進的3nm/5nm等節點上幾乎是唯一選擇，其壟斷地位極為穩固。" },
+      { q: "HBM（高頻寬記憶體）的技術領導廠商目前是？", opts: ["美光（Micron）","SK海力士（SK Hynix）","三星電子","英特爾"], ans: 1, exp: "SK海力士是HBM技術的領導者，其HBM3E產品是英偉達H200 GPU的主要記憶體，在AI記憶體市場佔據領先地位。" },
+      { q: "IDM（整合元件製造商）模式的定義是？", opts: ["只負責IC設計，不自建晶圓廠","設計、製造、封裝測試均自行完成","只負責晶圓製造，不涉及設計","委外封裝但自行製造與設計"], ans: 1, exp: "IDM（整合元件製造商）是指從IC設計、晶圓製造到封裝測試均垂直整合自行完成的商業模式，英特爾、三星、德州儀器是典型代表。" },
+      { q: "日月光（ASE）在半導體產業鏈中扮演什麼角色？", opts: ["EUV光刻設備供應商","全球最大OSAT封裝測試廠","晶圓代工廠","IC設計公司"], ans: 1, exp: "日月光（ASE）是全球最大的OSAT（Outsourced Semiconductor Assembly and Test）廠商，提供從傳統封裝到先進封裝的全方位服務。" },
+      { q: "英偉達H100/H200 GPU主要由哪家晶圓代工廠製造？", opts: ["英特爾（Intel Foundry）","三星電子","格羅方德（GlobalFoundries）","台積電（TSMC）"], ans: 3, exp: "英偉達的旗艦AI加速器H100、H200均由台積電以先進製程（4nm/CoWoS封裝）代工製造，是台積電AI晶片業務的核心客戶。" },
+      { q: "以下哪家公司同時是全球最大的記憶體廠商與台積電在先進製程代工業務上的主要競爭對手？", opts: ["SK海力士","美光（Micron）","三星電子","金士頓（Kingston）"], ans: 2, exp: "三星電子同時是全球最大的DRAM和NAND Flash記憶體製造商，也透過其晶圓代工部門Samsung Foundry與台積電競爭先進製程代工業務。" }
+    ],
+
+    // M4 各國半導體產業比較
+    m4_nav: "4. 各國產業比較",
+    m4_title: "各國半導體產業比較",
+    m4_p1: "半導體產業從未如此高度政治化。2022年美國通過《晶片與科學法案》（CHIPS Act），提供527億美元補貼重建本土半導體製造能力；歐盟《歐洲晶片法案》（European Chips Act）目標2030年佔全球晶片產量的20%；中國則在《中國製造2025》框架下持續大規模補貼半導體產業，力求實現自給自足。各國政府意識到，半導體已不僅是商業競爭，更是國家安全與經濟主權的核心議題。",
+    m4_p2: "目前的全球半導體供應鏈呈現高度地理集中性：最先進的邏輯晶片製造集中在台灣（台積電）與南韓（三星）；EUV設備集中在荷蘭（ASML）；高端光阻材料集中在日本；晶片設計能力主要在美國；封裝測試則大量集中在台灣與中國。任何一個環節的中斷都可能造成全球供應鏈震盪，台灣問題因此成為地緣政治風險的焦點。",
+    m4_countries: [
+      { country: "🇺🇸 美國", strength: "IC設計、EDA軟體、設備材料", champion: "英偉達、英特爾、高通、蘋果、應用材料", policy: "CHIPS Act（527億美元補貼）；出口管制限制中國獲取先進晶片", risk: "本土製造能力薄弱，過度依賴台灣代工" },
+      { country: "🇹🇼 台灣", strength: "先進晶圓代工、封裝測試", champion: "台積電、聯電、日月光、聯發科、力積電", policy: "晶片生產補貼；吸引外資設廠；推動在地化供應鏈", risk: "地緣政治風險；高度集中於台積電單一公司" },
+      { country: "🇰🇷 南韓", strength: "記憶體（DRAM/NAND）、邏輯代工", champion: "三星電子、SK海力士", policy: "K-Chips法案稅收優惠；半導體特區規劃", risk: "記憶體景氣循環波動大；邏輯代工落後台積電" },
+      { country: "🇯🇵 日本", strength: "半導體材料、設備零組件", champion: "信越化學、東京電子、JSR、Renesas", policy: "Rapidus計畫（2nm晶片）；吸引台積電、三星設廠", risk: "先進製程能力長期落後；Rapidus量產時程存疑" },
+      { country: "🇨🇳 中國", strength: "成熟製程代工、記憶體封裝", champion: "中芯國際（SMIC）、長江存儲（YMTC）、華為海思", policy: "大基金三期持續注資；自主研發EDA、設備", risk: "受美國出口管制嚴重制約先進製程進展；7nm以下仍有巨大技術差距" },
+      { country: "🇪🇺 歐盟", strength: "汽車用晶片、工業晶片、設備（ASML）", champion: "英飛凌（Infineon）、意法半導體（ST）、恩智浦（NXP）、ASML", policy: "歐洲晶片法案（430億歐元）；目標2030年佔全球20%產量", risk: "先進邏輯製程幾乎缺席；目標達成挑戰極大" },
+    ],
+    m4_terms: [
+      { front: "CHIPS and Science Act", back: "美國2022年通過的《晶片與科學法案》，提供約527億美元補貼用於本土半導體製造與研究，旨在降低對台灣代工的依賴，強化美國半導體供應鏈安全。" },
+      { front: "中國製造2025", back: "中國2015年提出的工業政策，目標在2025年實現半導體等關鍵產業70%自給率。受美國出口管制影響，先進製程自給率進展有限，但成熟製程（28nm以上）產能大幅擴張。" },
+      { front: "地緣政治風險 (Geopolitical Risk)", back: "台灣是全球最先進晶片的唯一大規模生產地，台海局勢緊張被視為全球半導體供應鏈最大的單一地緣政治風險，可能影響全球電子、汽車、國防等多個產業。" }
+    ],
+    m4_q: [
+      { q: "美國《晶片與科學法案》（CHIPS Act）的主要目的是什麼？", opts: ["限制台積電擴張","補貼重建美國本土半導體製造能力","對中國實施晶片禁運","資助大學半導體研究"], ans: 1, exp: "CHIPS Act提供約527億美元補貼，核心目的是吸引台積電、英特爾、三星等廠商在美國本土設廠，降低美國對台灣晶片代工的過度依賴，保障國家安全。" },
+      { q: "台灣在全球半導體供應鏈中最核心的優勢是什麼？", opts: ["擁有最豐富的矽砂原料","台積電掌握全球最先進的邏輯晶圓代工技術","全球最多的半導體設備廠","半導體人才成本最低"], ans: 1, exp: "台灣的核心競爭力在於台積電掌握全球最先進的邏輯晶圓代工製程（3nm、2nm），全球超過60%的先進晶片均由台積電代工，具有無可取代的戰略地位。" },
+      { q: "南韓的三星電子與SK海力士在全球半導體市場的最大優勢領域是？", opts: ["EUV微影設備","IC設計（CPU/GPU）","DRAM與NAND Flash記憶體","封裝測試服務"], ans: 2, exp: "南韓的三星電子與SK海力士合計掌握全球DRAM市場約70%的份額，以及NAND Flash市場約45%的份額，記憶體是南韓半導體業最核心的競爭優勢。" },
+      { q: "日本的Rapidus計畫的目標是什麼？", opts: ["在2025年前量產28nm晶片","與台積電合資建設先進封裝廠","在2020年代末期實現2nm先進製程量產","成為全球最大的矽晶圓供應商"], ans: 2, exp: "Rapidus是日本政府主導的半導體振興計畫，目標是在2020年代末期（約2027年）實現2nm先進製程的量產，被視為日本重返先進半導體製造的重要賭注，但量產時程仍充滿挑戰。" },
+      { q: "中國半導體產業在先進製程上面臨的最大外部障礙是什麼？", opts: ["缺乏足夠的本土市場需求","工程師人才不足","美國主導的出口管制，限制獲取EUV設備等關鍵技術","資本市場融資困難"], ans: 2, exp: "美國自2019年起對中國半導體業實施一系列出口管制，包括禁止ASML向中國出口EUV光刻機，以及對中芯國際、華為等的實體清單限制，嚴重制約中國在7nm以下先進製程的進展。" },
+      { q: "歐盟《歐洲晶片法案》設定的2030年目標是什麼？", opts: ["歐洲晶片設計公司市佔達20%","歐盟生產的晶片佔全球總產量的20%","在歐洲建造20座新晶圓廠","培育20家歐洲半導體獨角獸企業"], ans: 1, exp: "歐洲晶片法案的核心目標是到2030年使歐洲在全球晶片製造量中的佔比從目前的約9%提升至20%，並投入逾430億歐元公私資金達成此目標，但多數分析師認為此目標極具挑戰性。" },
+      { q: "哪個國家在半導體材料（如矽晶圓、光阻材料）領域擁有最強的全球競爭力？", opts: ["美國","中國","日本","德國"], ans: 2, exp: "日本在半導體材料領域具有極強的全球競爭力，信越化學（矽晶圓）、JSR（光阻）、東京應化（光阻）等日本廠商在多個關鍵材料領域佔據全球60-90%以上的市場份額。" },
+      { q: "「台灣問題」為何被視為全球半導體供應鏈的最大地緣政治風險？", opts: ["台灣是最大的半導體原料出口國","台積電等台灣廠商製造全球超過60%的先進晶片","台灣擁有ASML的替代技術","台灣是最大的半導體設備出口國"], ans: 1, exp: "由於台積電在全球先進晶圓代工市場的壟斷地位，台海若發生衝突，全球超過60%的先進晶片供應將立即中斷，衝擊範圍涵蓋智慧手機、伺服器、汽車、國防等幾乎所有現代產業。" }
+    ],
+
+    // M5 對其他產業與社會的影響
+    m5_nav: "5. 跨產業影響",
+    m5_title: "對其他產業與社會的影響",
+    m5_p1: "半導體是現代文明的「石油」，幾乎所有重要產業都深度依賴半導體技術。2020-2021年的全球晶片短缺事件，讓各界深刻認識到半導體對現代經濟的根本性影響：全球汽車廠因缺少車用晶片而減產逾千萬輛；醫療設備短缺威脅病患生命；消費電子產品交貨期延長數月。這場危機揭示了一個深刻事實：沒有晶片，現代工業文明幾乎無法運轉。",
+    m5_p2: "更長遠地看，半導體技術的突破正在重塑多個產業的競爭格局。AI晶片（GPU/TPU/NPU）的飛速發展，使人工智能從學術研究走向大規模商業應用，顛覆了從醫療診斷到金融風控的眾多行業。電動車的普及，從根本上改變了汽車行業的技術路線，每輛高階電動車的半導體元件價值超過傳統燃油車的5倍以上。",
+    m5_impact_items: [
+      { sector: "🤖 人工智慧 (AI)", desc: "AI訓練與推論完全依賴GPU/TPU等AI加速器晶片。英偉達CUDA生態系統形成強大護城河，大型語言模型（如GPT-4）的訓練需要數千顆H100晶片，耗資數億美元。" },
+      { sector: "🚗 電動車與自駕", desc: "特斯拉、比亞迪等電動車平均每輛含晶片價值超過5,000美元（傳統燃油車約500美元）。自駕系統（L3+）更需要強大的車用SoC（如英偉達Drive、高通Snapdragon Ride）。" },
+      { sector: "📱 智慧手機", desc: "現代旗艦手機SoC（如蘋果A17 Pro、高通Snapdragon 8 Gen3）整合CPU、GPU、NPU、基頻等，電晶體數量超過190億個，是人類製造的最複雜消費電子產品。" },
+      { sector: "☁️ 雲端運算", desc: "Amazon、Google、Microsoft的雲端資料中心是全球最大的晶片消費者之一。三家均已自研AI加速晶片（AWS Trainium/Inferentia、Google TPU、Azure Maia）以降低對英偉達的依賴。" },
+      { sector: "🏥 醫療健康", desc: "AI醫療影像診斷、基因定序、遠端手術機器人均依賴高性能晶片。2021年晶片短缺期間，多家醫療設備廠因缺料被迫停產，影響病患治療。" },
+      { sector: "🔋 能源與永續", desc: "太陽能逆變器、電網管理、電動車充電站均大量使用功率半導體（如碳化矽SiC、氮化鎵GaN）。半導體技術的進步直接推動能源轉型的效率與成本。" },
+    ],
+    m5_alert: "數位落差的警示",
+    m5_alert_desc: "半導體技術的高速發展同時加深了全球數位落差。掌握先進晶片能力的國家與企業在AI、國防、經濟競爭中佔據壓倒性優勢，而無法獲取先進半導體的國家與地區則面臨被邊緣化的風險，這一趨勢正在加劇全球科技不平等。",
+    m5_terms: [
+      { front: "車用晶片 (Automotive Semiconductor)", back: "用於汽車電子控制單元（ECU）、ADAS先進駕駛輔助系統、車載娛樂系統等的半導體元件。對高可靠性、寬溫度範圍有嚴格要求，主要供應商為英飛凌、恩智浦、德州儀器、Renesas等。" },
+      { front: "功率半導體 (Power Semiconductor)", back: "用於電力轉換與管理的半導體器件，如MOSFET、IGBT、碳化矽（SiC）、氮化鎵（GaN）等。廣泛用於電動車逆變器、太陽能發電、工業馬達驅動等，是能源轉型的關鍵元件。" },
+      { front: "邊緣運算 (Edge Computing)", back: "在靠近數據產生端（如手機、攝影機、汽車）進行數據處理，而非傳送到雲端的計算模式。需要高效能、低功耗的邊緣AI晶片（如手機NPU），可大幅降低延遲並保護隱私。" }
+    ],
+    m5_q: [
+      { q: "2020-2021年全球晶片短缺對哪個傳統產業造成最直接的重大衝擊？", opts: ["航空業","汽車業","農業","紡織業"], ans: 1, exp: "全球汽車廠因缺乏車用微控制器（MCU）等晶片，被迫大規模停產，全球汽車減產估計超過1,000萬輛，福特、豐田、大眾等主要車廠均受到嚴重影響。" },
+      { q: "電動車相較於傳統燃油車，半導體元件的價值約為多少倍？", opts: ["約1.5倍","約2倍","約5倍以上","幾乎相同"], ans: 2, exp: "一輛高階電動車（如特斯拉Model 3/Y）所使用的半導體元件價值約為5,000-6,000美元，而傳統燃油車平均約500美元，差距超過5倍，而自駕等級越高，晶片價值越高。" },
+      { q: "亞馬遜、谷歌、微軟等雲端業者自研AI晶片的主要目的是什麼？", opts: ["追求技術突破，超越英偉達","降低對英偉達GPU的依賴與採購成本","滿足政府對技術自主的要求","提供客戶更多晶片選擇"], ans: 1, exp: "英偉達GPU供不應求且利潤極高，雲端業者自研AI加速晶片（如AWS Trainium、Google TPU、Azure Maia）的核心動機是降低對英偉達的依賴，控制成本並優化自身特定工作負載的效能。" },
+      { q: "碳化矽（SiC）功率半導體主要被應用於哪個領域？", opts: ["手機螢幕驅動","個人電腦CPU","電動車逆變器與充電系統","家用音響設備"], ans: 2, exp: "碳化矽（SiC）功率半導體具有高耐壓、高頻、高溫特性，特別適合用於電動車牽引逆變器與快速充電系統，可顯著提升電動車的能源效率與充電速度，特斯拉率先大規模採用。" },
+      { q: "大型語言模型（如GPT-4）的訓練主要依賴哪種半導體元件？", opts: ["傳統CPU","DRAM記憶體","英偉達GPU（如H100）","NAND Flash儲存"], ans: 2, exp: "大型語言模型的訓練需要大量的浮點運算，英偉達的H100 GPU及其配套的HBM3記憶體是目前AI訓練的主流硬體，一次大型模型訓練可能需要數千顆H100並花費數億美元。" },
+      { q: "「數位落差（Digital Divide）」在半導體領域的主要體現是什麼？", opts: ["城市與鄉村的網路速度差異","掌握先進晶片能力的國家與無法獲取的國家之間技術鴻溝擴大","不同年齡層使用智慧手機的能力差異","企業大小對晶片採購量的差異"], ans: 1, exp: "在半導體地緣政治語境下，數位落差指的是能夠研發、製造或獲取先進AI晶片的國家（如美、日、台、韓）與無法獲取這些技術的國家之間，在經濟競爭力、軍事實力、科技發展上的鴻溝持續擴大。" },
+      { q: "以下哪個說法最準確地描述了半導體對現代社會的重要性？", opts: ["半導體主要影響消費電子，對重工業影響有限","半導體是現代工業文明的基礎元件，幾乎所有重要產業均深度依賴","半導體的影響力在AI發展後才逐漸顯現","半導體影響重要，但可以透過其他技術替代"], ans: 1, exp: "從智慧手機到汽車、從醫療設備到電力系統、從國防武器到農業灌溉，幾乎所有現代工業與生活設施都依賴半導體元件。2021年的晶片短缺已清楚證明：無論哪個產業，晶片供應一旦中斷，後果均極為嚴重。" },
+      { q: "邊緣運算（Edge Computing）對半導體產業帶來的主要需求是什麼？", opts: ["更大容量的NAND Flash","高效能、低功耗的邊緣AI晶片（NPU）","更低價格的傳統MCU","更高頻寬的DRAM記憶體"], ans: 1, exp: "邊緣運算在本地設備（手機、攝影機、汽車、工廠感測器）上進行AI推論，需要專門設計的神經網路處理器（NPU），其核心設計目標是在極低功耗下實現高AI推論效能，代表產品如蘋果ANE、高通Hexagon DSP。" }
+    ],
+
+    // M7 Interactive Lab
+    mlab_nav: "7. 互動實驗室",
+    mlab_title: "互動實驗室：半導體產業動態圖解",
+    mlab_desc: "透過可調整的動態圖表與視覺化工具，探索半導體產業的關鍵數據與趨勢，深化對各主題的理解。",
+
+    // M6 External Resources
+    m6_nav: "6. 外部資源",
+    m6_title: "外部資源與延伸閱讀",
+    m6_desc: "精選半導體產業最重要的官方組織、市場情報與延伸學習資源，助您持續深化產業知識。",
+
+    // Footer
+    date: "Version 2026.03",
+    copyright: "© 2026 All rights reserved.",
+    architect: "Interactive Learning SPA"
+  },
+
+  en: {
+    title: "Global Semiconductor Industry: A Complete Learning Guide",
+    subtitle: "From Transistors to AI Chips — Mastering the Technology Driving the Modern World",
+    nav_modules: "Modules",
+    nav_prev: "Prev", nav_next: "Next",
+    key_terms: "Key Terminology",
+    flip_prompt: "Click to Flip",
+    audio_read: "Audio Guide",
+    quiz_title: "Module Knowledge Check (4 Random Qs)",
+    submit: "Submit Answers", retry: "Retry Quiz",
+    score: "Score", correct: "Correct", incorrect: "Incorrect", explanation: "Explanation",
+    analytics_title: "Learning Analytics & Performance",
+    analytics_desc: "Track your engagement, time spent, and knowledge retention across all modules.",
+    analytics_form_title: "Enter details to enable export",
+    analytics_group: "Group", analytics_dept: "Dept/Grade",
+    analytics_dept_ph: "e.g., IBS3", analytics_id: "Student ID",
+    analytics_id_ph: "e.g., 112212099", analytics_name: "Name",
+    analytics_name_ph: "e.g., Jimmy Lo",
+    analytics_export_csv: "Export CSV Record",
+    analytics_fill_required: "Please fill all fields to unlock export",
+    group_options: ["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","Others"],
+    analytics_total_time: "Total Time Spent", analytics_total_clicks: "Total Clicks",
+    analytics_overall_acc: "Overall Quiz Accuracy",
+    analytics_module: "Module", analytics_time: "Time Spent",
+    analytics_clicks: "Clicks", analytics_acc: "Accuracy",
+    analytics_correct_ans_total: "Correct / Answered / Total",
+    analytics_no_data: "Not tested", analytics_sec: "s", analytics_times: "clicks",
+
+    m0_nav: "0. Course Overview",
+    m0_title: "Global Semiconductor Industry: Course Overview",
+    m0_intro: "Semiconductors are the indispensable foundation of modern civilization. From the smartphone in your hand to the safety systems in your car, the diagnostic equipment in hospitals, and the servers governing global financial markets — every modern technological marvel depends on these tiny silicon chips. This course will guide you through industry history, core technology, global supply chains, and geopolitical implications to give you a comprehensive mastery of the industry driving the 21st-century world.",
+    m0_why: "Why Are Semiconductors So Important?",
+    m0_why_desc: "The 2021 global chip shortage left millions of cars undeliverable, medical devices out of stock, and electronics on backorder for months. A single crisis revealed a profound truth: without chips, modern industrial civilization can barely function. Semiconductors are no longer merely tech products — they are core assets of national security, economic sovereignty, and strategic competition.",
+    m0_modules: [
+      { num: "01", title: "Industry History", desc: "Trace 75 years of semiconductor evolution from the 1947 transistor invention to the AI chip era, including the rise and challenges of Moore\'s Law." },
+      { num: "02", title: "Technology Evolution", desc: "Deep dive into FinFET, GAA, EUV lithography, HBM memory, and advanced packaging — the core technologies driving continuous semiconductor performance gains." },
+      { num: "03", title: "Key Players & Products", desc: "Analyze critical players across upstream equipment/materials, midstream wafer manufacturing, and downstream IC design/OSAT — from ASML to TSMC to NVIDIA." },
+      { num: "04", title: "Country Comparisons", desc: "Compare the strengths, policies, and risks of the six major semiconductor powers (US, Taiwan, South Korea, Japan, China, EU) and decode the new chip geopolitics." },
+      { num: "05", title: "Cross-Industry Impact", desc: "Explore how semiconductors are reshaping AI, EVs, cloud computing, healthcare, and more — and the profound societal impact on the digital divide." },
+    ],
+    m0_stats: [
+      { val: "$526.9B", label: "2023 Global Market Size" },
+      { val: ">60%", label: "TSMC Advanced Node Share" },
+      { val: "$1T+", label: "Projected 2030 Market Size" },
+      { val: "19B+", label: "Transistors in Flagship SoC" },
+    ],
+    m0_start: "Start Learning →",
+
+    m1_nav: "1. Industry History",
+    m1_title: "Industry Development & Current Landscape",
+    m1_p1: "The history of the semiconductor industry is an epic of humanity's relentless push against physical limits. In 1947, three physicists at Bell Labs invented the transistor, ushering in the modern electronic age. This invention replaced the bulky, power-hungry vacuum tube, enabling the miniaturization of electronic devices. In 1958, Jack Kilby of Texas Instruments and Robert Noyce of Fairchild Semiconductor independently invented the integrated circuit (IC), integrating multiple transistors onto a single chip, laying the foundation of the modern semiconductor industry.",
+    m1_p2: "In 1965, Intel co-founder Gordon Moore proposed the famous 'Moore's Law': the number of transistors on an integrated circuit doubles approximately every two years, with performance rising and costs falling. This prediction guided the semiconductor industry for over fifty years, driving the industry to continually shrink process nodes. However, as processes approach the physical limit (now below 2nm), the continuation of Moore's Law faces severe challenges, and the industry is seeking breakthroughs through new architectures like 3D stacking and heterogeneous integration.",
+    m1_p3: "Entering the 2020s, the semiconductor industry has become one of the world's most strategically important sectors. The global semiconductor market was approximately $526.9 billion in 2023, projected to surpass one trillion dollars by 2030. As AI, 5G, EVs, and IoT applications explode, demand for high-performance, energy-efficient chips continues to rise. Taiwan, South Korea, the US, Japan, China, and the EU have all designated semiconductors as a national strategic priority, engaging in fierce technology competition and industrial positioning.",
+    m1_era1: "Transistor Era (1947–1960s)",
+    m1_era1_desc: "Bell Labs invents the point-contact transistor (1947), replacing vacuum tubes. Jack Kilby (TI) and Robert Noyce (Fairchild) independently invent the integrated circuit (1958/1959), marking the dawn of the microelectronics age.",
+    m1_era2: "Moore's Law Era (1965–2010s)",
+    m1_era2_desc: "Intel's x86 architecture dominates the PC era, with processes shrinking from micrometers to nanometers. Key components like DRAM, NAND Flash, and GPUs emerge. TSMC (1987) establishes the pure-play foundry model, reshaping industry division of labor.",
+    m1_era3: "Post-Moore's Law Era (2020s–)",
+    m1_era3_desc: "Process nodes approach physical limits; industry pivots to 3D stacking (HBM memory), Chiplet heterogeneous integration, and advanced packaging. AI accelerator (GPU/TPU/NPU) demand explodes; geopolitics accelerates supply chain restructuring.",
+    m1_highlight: "Key Data: 2023 Global Semiconductor Market",
+    m1_highlight_desc: "Market Size ~$526.9B | TSMC market cap surpassed $500B | Top 10 chipmakers hold >60% revenue share | AI chip demand growing 50%+ YoY",
+    m1_terms: [
+      { front: "Integrated Circuit (IC)", back: "A single semiconductor substrate integrating multiple electronic components (transistors, resistors, capacitors, etc.). The core of all modern electronic devices, invented simultaneously by Kilby (TI) and Noyce (Fairchild) in 1958–1959." },
+      { front: "Moore's Law", back: "Gordon Moore's 1965 observation that the number of transistors on an IC approximately doubles every two years. Though approaching physical limits, it remains a key benchmark for innovation in the semiconductor industry." },
+      { front: "Process Node", back: "Measured in nanometers (nm), describing the size of the smallest transistor features on a chip. Smaller numbers indicate more advanced technology, e.g., TSMC's 3nm and 2nm processes." }
+    ],
+    m1_q: [
+      { q: "When and by which institution was the transistor invented?", opts: ["1947, Bell Labs","1958, Texas Instruments","1965, Intel","1987, TSMC"], ans: 0, exp: "In 1947, William Shockley, John Bardeen, and Walter Brattain at Bell Labs invented the point-contact transistor, for which they received the 1956 Nobel Prize in Physics." },
+      { q: "What is the core content of Moore's Law?", opts: ["Semiconductor market doubles every two years","Transistor count approximately doubles every two years","Chip price falls 50% annually","Process nodes shrink by half each year"], ans: 1, exp: "Moore's Law states that the number of transistors on an integrated circuit approximately doubles every two years, with performance improving and costs falling — the core driver of over 50 years of semiconductor industry growth." },
+      { q: "When was TSMC founded, and what business model did it establish?", opts: ["1968, IDM model","1987, Pure-Play Foundry model","1993, Design-and-Manufacture model","2000, Fabless model"], ans: 1, exp: "TSMC was founded in 1987 by Morris Chang, establishing the pure-play foundry model that allowed IC design companies to operate without their own fabs, transforming the entire industry structure." },
+      { q: "What strategies does the industry primarily employ in the 'Post-Moore's Law Era' to continue performance improvements?", opts: ["Continue shrinking process nodes to 0.1nm","3D stacking, Chiplet heterogeneous integration, advanced packaging","Replace silicon with carbon nanotubes","Increase chip area rather than shrinking nodes"], ans: 1, exp: "As process nodes approach physical limits, the industry pivots to 3D IC stacking (like HBM memory), Chiplet heterogeneous integration, and advanced packaging technologies to sustain per-generation performance improvements." },
+      { q: "Approximately what was the size of the global semiconductor market in 2023?", opts: ["~$200 billion","~$350 billion","~$526.9 billion","~$800 billion"], ans: 2, exp: "The global semiconductor market was approximately $526.9 billion in 2023, driven by AI, 5G, and EVs, and is projected to surpass one trillion dollars by 2030." },
+      { q: "Who invented the integrated circuit (IC)?", opts: ["William Shockley","Jack Kilby and Robert Noyce","Gordon Moore","Morris Chang"], ans: 1, exp: "The IC was independently invented by Jack Kilby of Texas Instruments (1958) and Robert Noyce of Fairchild Semiconductor (1959). Kilby received the 2000 Nobel Prize in Physics for this invention." },
+      { q: "Which best describes the challenge facing Moore's Law?", opts: ["Shortage of chip design engineers","Process nodes approaching physical limits at the atomic scale","Slowing market demand growth","Lack of R&D funding"], ans: 1, exp: "When transistor sizes shrink to single-digit nanometers, quantum tunneling, leakage currents, and other quantum physical phenomena make further scaling extremely difficult — the fundamental challenge to Moore's Law continuity." },
+      { q: "Which emerging application is one of the biggest drivers of semiconductor demand growth in the 2020s?", opts: ["Smart home appliances","Artificial Intelligence (AI)","Printed circuit boards","Traditional industrial automation"], ans: 1, exp: "AI model training and inference requires large numbers of high-performance GPUs, TPUs, and other AI accelerator chips, making it the strongest driver of semiconductor demand in the 2020s, boosting companies like NVIDIA and TSMC." }
+    ],
+
+    m2_nav: "2. Technology Evolution",
+    m2_title: "Technology Development & Current State",
+    m2_p1: "The core of semiconductor technology is the fabrication process — the method of manufacturing transistors on silicon wafers. The mainstream technology has evolved from CMOS planar processes to FinFET 3D transistors (from 16nm onward), and now to TSMC's latest 3nm GAA (Gate-All-Around) Nanosheet architecture. Each architectural revolution aims to pack more transistors into a smaller space while controlling leakage current and power consumption.",
+    m2_p2: "Beyond logic chip processes, memory technology is equally critical. DRAM has evolved from DDR to HBM (High Bandwidth Memory), with continuously improving capacity and bandwidth. NAND Flash has gone from 2D planar stacking to today's 200+ layer 3D NAND, dramatically increasing storage density. SK Hynix's HBM3E, introduced in 2024, is the most advanced memory product, packaged directly beside AI accelerators to resolve the memory bandwidth bottleneck in AI training.",
+    m2_p3: "Packaging technology has become the new battleground for performance competition. Traditional wire bonding is no longer sufficient, replaced by TSMC's CoWoS (Chip-on-Wafer-on-Substrate), SoIC (System on Integrated Chips), and other advanced packaging technologies that tightly integrate multiple chips (such as GPU cores and HBM memory) within a single package, dramatically improving bandwidth and reducing latency. This is the core competitive advantage of NVIDIA's H100/H200/B200 GPU series.",
+    m2_tech1: "Logic Process Evolution",
+    m2_tech1_items: [
+      { era: "Planar MOSFET", nm: "≥28nm", desc: "Traditional planar transistor, 2D structure, limited leakage control capability." },
+      { era: "FinFET", nm: "16–7nm", desc: "3D fin-shaped transistor, tri-gate control, dramatically improved leakage control. Adopted by Samsung, TSMC, and Intel." },
+      { era: "GAA (Nanosheet)", nm: "3–2nm", desc: "Gate-All-Around; gate fully wraps the channel on all four sides for superior electrical control. TSMC N2, Samsung SF3 leading mass production." },
+      { era: "CFET / 2D Materials", nm: "<1nm (Research)", desc: "Complementary FET vertical stacking or 2D materials like MoS₂ — next-generation research directions." },
+    ],
+    m2_terms: [
+      { front: "FinFET", back: "Fin Field-Effect Transistor. Uses a vertical silicon fin as the current channel, with the gate wrapping around three sides to dramatically reduce leakage current. Intel first mass-produced it at 22nm (2011)." },
+      { front: "EUV Lithography", back: "Extreme Ultraviolet Lithography, using a 13.5nm wavelength light source to expose chip patterns. ASML monopolizes the supply of High-NA EUV machines, which are essential for sub-7nm processes." },
+      { front: "Advanced Packaging", back: "Technology for high-density integration of multiple chips in a single package, including TSMC's CoWoS and InFO, Samsung's I-Cube, etc. A key path for improving system performance in the AI era — now the 'second battleground'." }
+    ],
+    m2_q: [
+      { q: "What is the key advantage of FinFET transistors over traditional planar MOSFETs?", opts: ["Lower manufacturing cost","Tri-gate control dramatically reduces leakage current","Can operate at higher temperatures","Completely eliminates quantum tunneling"], ans: 1, exp: "FinFET's 3D fin structure allows the gate to wrap around three sides (or both sides + top) of the current channel, providing far stronger current control than planar MOSFETs, effectively suppressing short-channel effects and leakage." },
+      { q: "Who is the sole global supplier of EUV lithography machines?", opts: ["Applied Materials","KLA","ASML","Nikon"], ans: 2, exp: "Dutch company ASML is the world's only manufacturer of EUV lithography machines, each costing over $150 million. They are indispensable for sub-7nm advanced process manufacturing." },
+      { q: "What is the improvement of GAA (Gate-All-Around) transistors over FinFET?", opts: ["Uses new semiconductor materials","Gate fully wraps all four sides of the channel for superior control","Shortens the current channel length","Uses a thinner oxide layer"], ans: 1, exp: "GAA technology allows the gate to fully wrap around the nanosheet channel on all four sides, offering far superior current control compared to FinFET's three-sided wrap. It is the mainstream architecture for sub-3nm processes." },
+      { q: "What AI computing bottleneck does HBM (High Bandwidth Memory) primarily address?", opts: ["Insufficient compute speed","Insufficient memory bandwidth","Low energy efficiency","Excessive chip area"], ans: 1, exp: "AI models (especially large language models) require enormous memory bandwidth to rapidly access parameters. HBM uses 3D stacking and Through-Silicon Via (TSV) technology to deliver memory bandwidth far exceeding traditional GDDR." },
+      { q: "TSMC's CoWoS advanced packaging technology primarily integrates which components?", opts: ["CPU and north/south bridge chips","GPU cores and HBM memory","NAND Flash and DRAM","Sensors and microcontrollers"], ans: 1, exp: "CoWoS (Chip on Wafer on Substrate) is TSMC's flagship advanced packaging technology, primarily integrating GPU/AI accelerator cores with HBM memory stacks. It is widely used in NVIDIA's A100/H100/H200 high-end AI chips." },
+      { q: "What is the core technological breakthrough of 3D NAND Flash over 2D NAND?", opts: ["Uses smaller storage cells","Vertically stacks storage layers to dramatically increase density","Uses new insulating materials","Switches to DDR interface"], ans: 1, exp: "3D NAND stacks storage layers vertically — the most advanced currently exceeding 200 layers — dramatically increasing storage density without shrinking cell area, overcoming the physical limits of 2D NAND scaling." },
+      { q: "Which technology is considered one of the alternative paths after Moore's Law ends?", opts: ["Continue shrinking to 0.1nm","Chiplet heterogeneous integration","Replace silicon with germanium (Ge)","Increase CPU core count to 1000"], ans: 1, exp: "Chiplet heterogeneous integration involves manufacturing different functional chiplets (CPU cores, I/O, memory controllers) separately, then integrating them via advanced packaging. This dramatically reduces cost, improves yield, and is a key post-Moore strategy." },
+      { q: "Which company first mass-produced chips using a GAA (Nanosheet) architecture at 3nm?", opts: ["Intel","TSMC","Samsung Electronics","GlobalFoundries"], ans: 2, exp: "Samsung announced mass production of its 3GAE process with GAA architecture in 2022. TSMC's N3 still uses FinFET; TSMC's GAA (called GAAFET/Nanosheet) was planned for the N2 (2nm) process and has entered production in 2025." }
+    ],
+
+    m3_nav: "3. Key Players & Products",
+    m3_title: "Key Players & Products Across the Value Chain",
+    m3_p1: "The semiconductor industry features a highly refined vertical division of labor, divided into three major segments: upstream (equipment and materials), midstream (wafer manufacturing), and downstream (IC design and OSAT). Each segment has its critical players, and this division has created global monopolists like TSMC, ASML, and others.",
+    m3_p2: "Integrated Device Manufacturers (IDMs) like Intel, Samsung, and Texas Instruments design and manufacture chips themselves. Fabless companies like NVIDIA, AMD, Qualcomm, and Apple only design chips. Pure-Play Foundries like TSMC and UMC only manufacture. This division allows different companies to focus on their core competencies, forming an efficient global supply chain.",
+    m3_upstream: [
+      { name: "ASML (Netherlands)", role: "EUV/DUV Lithography Equipment", desc: "World's sole EUV machine manufacturer, market cap over $300B. High-NA EUV machines are critical for sub-2nm processes." },
+      { name: "Applied Materials (US)", role: "Thin Film Deposition, Etch Equipment", desc: "World's largest semiconductor equipment company; provides CVD, PVD, ALD process equipment; annual revenue over $25B." },
+      { name: "Tokyo Electron TEL (Japan)", role: "Coater/Developer, Etch Equipment", desc: "Japan's largest semiconductor equipment maker; provides coater/developer systems and thermal processing equipment." },
+      { name: "Shin-Etsu Chemical (Japan)", role: "Silicon Wafer Materials", desc: "World's largest silicon wafer supplier with ~30% market share. Also provides photoresist and other key chemicals." },
+    ],
+    m3_midstream: [
+      { name: "TSMC (Taiwan)", role: "Advanced Logic Foundry", desc: "World's largest pure-play foundry, >60% market share. Holds the world's most advanced 3nm/2nm processes; customers include Apple, NVIDIA, AMD." },
+      { name: "Samsung Electronics (South Korea)", role: "IDM + Foundry", desc: "World's largest memory (DRAM/NAND) maker and TSMC's main competitor in logic foundry. Also the world's largest mobile chipmaker." },
+      { name: "Intel (US)", role: "IDM, CPU/Server Chips", desc: "World's largest IDM, rebuilding foundry business via Intel Foundry Services (IFS); 18A process planned for production in 2025." },
+      { name: "SK Hynix (South Korea)", role: "DRAM/HBM Memory", desc: "World's second-largest memory maker and the technology leader in HBM (High Bandwidth Memory), primarily supplying NVIDIA AI chips." },
+    ],
+    m3_downstream: [
+      { name: "NVIDIA (US)", role: "GPU/AI Accelerator Design", desc: "Global AI chip leader; H100/H200/B200 GPU series dominates AI training market; market cap briefly exceeded $3 trillion in 2023." },
+      { name: "Apple (US)", role: "AP/SoC Design", desc: "In-house A-series (iPhone) and M-series (Mac) chips, all manufactured by TSMC. The benchmark for chip design and system integration." },
+      { name: "Qualcomm (US)", role: "Mobile AP/Modem Chips", desc: "World's largest mobile AP and baseband chip designer; Snapdragon series dominates the Android premium smartphone market." },
+      { name: "ASE Group (Taiwan)", role: "OSAT (Packaging & Testing)", desc: "World's largest semiconductor OSAT, providing services from traditional to advanced packaging; key partner for TSMC's CoWoS." },
+    ],
+    m3_terms: [
+      { front: "IDM (Integrated Device Manufacturer)", back: "A vertically integrated company that handles IC design, wafer manufacturing, and packaging/testing in-house, such as Intel, Samsung, and Texas Instruments. Advantages: technology synergies. Disadvantages: capital intensive." },
+      { front: "Fabless", back: "A business model where a company only designs ICs and outsources manufacturing to a foundry. NVIDIA, Apple, Qualcomm, and AMD all use this model, allowing companies to focus on R&D without bearing high manufacturing costs." },
+      { front: "OSAT (Outsourced Assembly and Test)", back: "Companies providing outsourced semiconductor packaging and testing services, such as Taiwan's ASE Group, Powertech, and King Yuan, as well as China's JCET." }
+    ],
+    m3_q: [
+      { q: "Which company is the world's sole manufacturer of EUV lithography machines?", opts: ["Applied Materials","KLA","ASML","Nikon"], ans: 2, exp: "Dutch company ASML is the only company in the world capable of producing EUV lithography machines, with irreplaceable strategic importance for global advanced chip manufacturing." },
+      { q: "Which company best exemplifies the 'Fabless' design-only model?", opts: ["Intel","Samsung Electronics","Texas Instruments (TI)","NVIDIA"], ans: 3, exp: "NVIDIA is the most emblematic Fabless company — it designs its chips and outsources manufacturing to foundries like TSMC, without owning any wafer fabs." },
+      { q: "What is TSMC's approximate market share in advanced logic foundry?", opts: ["~30%","~45%","Over 60%","~80%"], ans: 2, exp: "TSMC holds over 60% market share in sub-10nm advanced process foundry, and is virtually the only choice for the most advanced 3nm/5nm nodes — an extremely entrenched monopoly." },
+      { q: "Who is currently the technology leader in HBM (High Bandwidth Memory)?", opts: ["Micron","SK Hynix","Samsung Electronics","Intel"], ans: 1, exp: "SK Hynix is the HBM technology leader; its HBM3E products are the primary memory in NVIDIA's H200 GPU, holding a leading position in the AI memory market." },
+      { q: "What is the definition of the IDM (Integrated Device Manufacturer) model?", opts: ["Only IC design, no fab ownership","Design, manufacturing, and packaging/testing all done in-house","Only wafer manufacturing, no design","Outsourced packaging but in-house manufacturing and design"], ans: 1, exp: "IDM (Integrated Device Manufacturer) refers to a vertically integrated business model where a company handles everything from IC design to wafer manufacturing and packaging/testing. Intel, Samsung, and TI are classic examples." },
+      { q: "What role does ASE Group (ASE) play in the semiconductor supply chain?", opts: ["EUV equipment supplier","World's largest OSAT","Wafer foundry","IC design company"], ans: 1, exp: "ASE Group is the world's largest OSAT (Outsourced Semiconductor Assembly and Test), providing comprehensive services from traditional to advanced packaging." },
+      { q: "Which foundry manufactures NVIDIA's H100/H200 GPUs?", opts: ["Intel Foundry","Samsung Electronics","GlobalFoundries","TSMC"], ans: 3, exp: "NVIDIA's flagship AI accelerators H100 and H200 are manufactured by TSMC using advanced processes (4nm / CoWoS packaging). NVIDIA is one of TSMC's most important AI chip customers." },
+      { q: "Which company is simultaneously the world's largest memory manufacturer AND TSMC's primary competitor in advanced foundry services?", opts: ["SK Hynix","Micron","Samsung Electronics","Kingston"], ans: 2, exp: "Samsung Electronics is simultaneously the world's largest DRAM and NAND Flash memory manufacturer, and competes with TSMC in advanced process foundry through its Samsung Foundry division." }
+    ],
+
+    m4_nav: "4. Country Comparisons",
+    m4_title: "Global Semiconductor Industry by Country",
+    m4_p1: "The semiconductor industry has never been so highly politicized. In 2022, the US passed the CHIPS and Science Act, providing $52.7 billion in subsidies to rebuild domestic semiconductor manufacturing; the EU's European Chips Act targets 20% of global chip production by 2030; China continues massive subsidies under 'Made in China 2025', striving for self-sufficiency. Governments worldwide recognize that semiconductors are no longer merely commercial competition, but a matter of national security and economic sovereignty.",
+    m4_p2: "The current global semiconductor supply chain is highly geographically concentrated: the most advanced logic chip manufacturing is concentrated in Taiwan (TSMC) and South Korea (Samsung); EUV equipment in the Netherlands (ASML); high-end photoresist materials in Japan; chip design capabilities mainly in the US; and packaging/testing heavily concentrated in Taiwan and China. Any disruption in any segment could trigger global supply chain shocks, making the Taiwan issue a geopolitical risk flashpoint.",
+    m4_countries: [
+      { country: "🇺🇸 USA", strength: "IC Design, EDA, Equipment & Materials", champion: "NVIDIA, Intel, Qualcomm, Apple, Applied Materials", policy: "CHIPS Act ($52.7B subsidies); export controls restricting China's access to advanced chips", risk: "Weak domestic manufacturing; over-reliance on Taiwanese foundries" },
+      { country: "🇹🇼 Taiwan", strength: "Advanced Foundry, OSAT", champion: "TSMC, UMC, ASE, MediaTek, PSMC", policy: "Chip production subsidies; attracting foreign investment; promoting localized supply chains", risk: "Geopolitical risk (cross-strait tension); extreme concentration in TSMC" },
+      { country: "🇰🇷 South Korea", strength: "Memory (DRAM/NAND), Logic Foundry", champion: "Samsung Electronics, SK Hynix", policy: "K-Chips Act tax incentives; semiconductor zone planning", risk: "Memory cycle volatility; logic foundry lagging behind TSMC" },
+      { country: "🇯🇵 Japan", strength: "Semiconductor Materials, Equipment Components", champion: "Shin-Etsu, TEL, JSR, Renesas", policy: "Rapidus initiative (2nm chips); attracting TSMC, Samsung fab investments", risk: "Long-lagging advanced process capability; Rapidus production timeline uncertain" },
+      { country: "🇨🇳 China", strength: "Mature-Node Foundry, Memory Packaging", champion: "SMIC, YMTC, HiSilicon (Huawei)", policy: "Big Fund Phase III capital injections; indigenous EDA/equipment R&D", risk: "US export controls severely constrain advanced process progress; huge technology gap below 7nm" },
+      { country: "🇪🇺 EU", strength: "Automotive Chips, Industrial Chips, Equipment (ASML)", champion: "Infineon, STMicroelectronics, NXP, ASML", policy: "European Chips Act (€43B); target 20% global production share by 2030", risk: "Almost absent from advanced logic; target achievement extremely challenging" },
+    ],
+    m4_terms: [
+      { front: "CHIPS and Science Act", back: "US legislation passed in 2022, providing ~$52.7B in subsidies for domestic semiconductor manufacturing and research. Aims to reduce dependence on Taiwanese foundries and strengthen US semiconductor supply chain security." },
+      { front: "Made in China 2025", back: "China's 2015 industrial policy targeting 70% self-sufficiency in semiconductors and other key industries by 2025. US export controls have limited progress in advanced processes, but mature-node (28nm+) capacity has expanded significantly." },
+      { front: "Geopolitical Risk", back: "Taiwan is the only large-scale production site for the world's most advanced chips. Cross-strait tension is considered the single largest geopolitical risk to the global semiconductor supply chain, potentially impacting electronics, automotive, defense, and many other industries." }
+    ],
+    m4_q: [
+      { q: "What is the primary purpose of the US CHIPS and Science Act?", opts: ["Restrict TSMC's expansion","Subsidize rebuilding US domestic semiconductor manufacturing","Impose a chip embargo on China","Fund university semiconductor research"], ans: 1, exp: "The CHIPS Act provides ~$52.7B in subsidies; its core purpose is to attract TSMC, Intel, Samsung, and others to build fabs on US soil, reducing US over-reliance on Taiwanese chip foundries and securing national security." },
+      { q: "What is Taiwan's most critical advantage in the global semiconductor supply chain?", opts: ["Richest silicon sand resources","TSMC holds the world's most advanced logic foundry technology","Most semiconductor equipment makers globally","Lowest semiconductor talent costs"], ans: 1, exp: "Taiwan's core competitive advantage is TSMC's mastery of the world's most advanced logic foundry processes (3nm, 2nm). Over 60% of the world's advanced chips are made by TSMC, an irreplaceable strategic position." },
+      { q: "What is South Korea's Samsung and SK Hynix's dominant area in global semiconductors?", opts: ["EUV lithography equipment","IC design (CPU/GPU)","DRAM and NAND Flash memory","OSAT services"], ans: 2, exp: "Samsung and SK Hynix together control about 70% of the global DRAM market and ~45% of the NAND Flash market. Memory is the core competitive advantage of South Korea's semiconductor industry." },
+      { q: "What is the goal of Japan's Rapidus initiative?", opts: ["Mass produce 28nm chips by 2025","Co-invest with TSMC in advanced packaging fabs","Achieve 2nm advanced process mass production by the late 2020s","Become the world's largest silicon wafer supplier"], ans: 2, exp: "Rapidus is a government-led Japanese semiconductor revival initiative targeting 2nm advanced process mass production by the late 2020s (~2027). Considered Japan's major bet on returning to advanced semiconductor manufacturing, its production timeline remains highly challenging." },
+      { q: "What is the biggest external obstacle China's semiconductor industry faces in advanced process development?", opts: ["Insufficient domestic market demand","Shortage of engineering talent","US-led export controls restricting access to EUV equipment and key technologies","Capital market financing difficulties"], ans: 2, exp: "Since 2019, the US has imposed a series of export controls on China's semiconductor industry, including banning ASML from exporting EUV machines to China and adding SMIC and Huawei to entity lists, severely constraining China's progress below 7nm." },
+      { q: "What is the EU European Chips Act's 2030 target?", opts: ["EU chip design companies reach 20% market share","EU-produced chips account for 20% of global output","Build 20 new fabs in Europe","Nurture 20 European semiconductor unicorns"], ans: 1, exp: "The European Chips Act's core target is to raise Europe's share of global chip manufacturing from ~9% currently to 20% by 2030, investing over €43B in public and private funds. Most analysts consider this target extremely challenging to achieve." },
+      { q: "Which country has the strongest global competitiveness in semiconductor materials (silicon wafers, photoresists, etc.)?", opts: ["USA","China","Japan","Germany"], ans: 2, exp: "Japan has extremely strong global competitiveness in semiconductor materials — Shin-Etsu Chemical (silicon wafers), JSR (photoresist), Tokyo Ohka Kogyo (photoresist), and others hold 60-90%+ global market share in multiple key materials." },
+      { q: "Why is the 'Taiwan issue' considered the single largest geopolitical risk to the global semiconductor supply chain?", opts: ["Taiwan is the largest semiconductor raw material exporter","TSMC and other Taiwanese firms manufacture over 60% of advanced chips globally","Taiwan holds ASML's alternative technology","Taiwan is the largest semiconductor equipment exporter"], ans: 1, exp: "Due to TSMC's monopoly in advanced foundry, any conflict in the Taiwan Strait would immediately cut off over 60% of advanced chip supply, impacting virtually every modern industry including smartphones, servers, automotive, and defense." }
+    ],
+
+    m5_nav: "5. Cross-Industry Impact",
+    m5_title: "Impact on Other Industries & Society",
+    m5_p1: "Semiconductors are the 'oil' of modern civilization — nearly every important industry depends deeply on semiconductor technology. The 2020–2021 global chip shortage starkly demonstrated semiconductors' fundamental impact on the modern economy: automakers reduced production by over 10 million vehicles due to automotive chip shortages; medical equipment shortages threatened patients' lives; consumer electronics delivery times stretched for months. This crisis revealed a profound truth: without chips, modern industrial civilization can barely function.",
+    m5_p2: "More long-term, semiconductor breakthroughs are reshaping competitive landscapes across multiple industries. The rapid development of AI chips (GPU/TPU/NPU) has brought artificial intelligence from academic research into large-scale commercial applications, disrupting fields from medical diagnosis to financial risk control. The proliferation of electric vehicles has fundamentally changed the automotive industry's technological trajectory — the semiconductor component value in a premium EV exceeds that of a traditional ICE vehicle by more than 5x.",
+    m5_impact_items: [
+      { sector: "🤖 Artificial Intelligence (AI)", desc: "AI training and inference fully depends on GPU/TPU AI accelerator chips. NVIDIA's CUDA ecosystem creates a formidable moat. Training a large language model (like GPT-4) requires thousands of H100 chips, costing hundreds of millions." },
+      { sector: "🚗 EV & Autonomous Driving", desc: "Tesla, BYD, and others average >$5,000 in chip value per EV (vs. ~$500 for traditional ICE vehicles). Autonomous driving (L3+) requires powerful automotive SoCs (e.g., NVIDIA Drive, Qualcomm Snapdragon Ride)." },
+      { sector: "📱 Smartphones", desc: "Modern flagship SoCs (Apple A17 Pro, Snapdragon 8 Gen 3) integrate CPU, GPU, NPU, modem, and more with over 19 billion transistors — the most complex consumer electronics humanity manufactures." },
+      { sector: "☁️ Cloud Computing", desc: "Amazon, Google, and Microsoft's cloud data centers are among the world's largest chip consumers. All three have developed in-house AI accelerators (AWS Trainium/Inferentia, Google TPU, Azure Maia) to reduce NVIDIA dependence." },
+      { sector: "🏥 Healthcare", desc: "AI medical imaging diagnosis, gene sequencing, and remote surgical robotics all rely on high-performance chips. During the 2021 chip shortage, multiple medical device makers were forced to halt production, affecting patient care." },
+      { sector: "🔋 Energy & Sustainability", desc: "Solar inverters, grid management, and EV charging stations use large amounts of power semiconductors (SiC, GaN). Semiconductor advances directly drive energy transition efficiency and cost reduction." },
+    ],
+    m5_alert: "The Digital Divide Warning",
+    m5_alert_desc: "The rapid development of semiconductor technology is also deepening the global digital divide. Countries and companies that master advanced chip capabilities hold overwhelming advantages in AI, defense, and economic competition, while nations unable to access advanced semiconductors face the risk of marginalization — a trend accelerating global technological inequality.",
+    m5_terms: [
+      { front: "Automotive Semiconductor", back: "Semiconductors used in vehicle ECUs (Electronic Control Units), ADAS (Advanced Driver Assistance Systems), and in-vehicle infotainment. Subject to strict reliability and wide temperature range requirements. Key suppliers: Infineon, NXP, TI, Renesas." },
+      { front: "Power Semiconductor", back: "Semiconductor devices for power conversion and management, such as MOSFETs, IGBTs, SiC (Silicon Carbide), GaN (Gallium Nitride). Widely used in EV inverters, solar power, industrial motor drives — critical components for the energy transition." },
+      { front: "Edge Computing", back: "Processing data near where it's generated (smartphones, cameras, vehicles) rather than sending it to the cloud. Requires high-performance, low-power edge AI chips (NPUs), dramatically reducing latency and protecting privacy." }
+    ],
+    m5_q: [
+      { q: "Which traditional industry was most directly and severely impacted by the 2020–2021 global chip shortage?", opts: ["Aviation","Automotive","Agriculture","Textiles"], ans: 1, exp: "Global automakers were forced into large-scale production shutdowns due to shortages of automotive microcontrollers (MCUs) and other chips. Global auto production is estimated to have been reduced by over 10 million vehicles, severely affecting Ford, Toyota, Volkswagen, and others." },
+      { q: "Approximately how many times more semiconductor component value does an EV have compared to a traditional ICE vehicle?", opts: ["~1.5x","~2x","5x or more","About the same"], ans: 2, exp: "A premium EV (like Tesla Model 3/Y) uses ~$5,000–6,000 in semiconductor component value, while a traditional ICE vehicle averages ~$500 — a difference exceeding 5x. The higher the autonomous driving level, the higher the chip value." },
+      { q: "What is the primary motivation for cloud providers like Amazon, Google, and Microsoft to develop their own AI chips?", opts: ["Pursue technical breakthroughs beyond NVIDIA","Reduce dependence on NVIDIA GPUs and procurement costs","Meet government tech self-sufficiency requirements","Offer customers more chip choices"], ans: 1, exp: "NVIDIA GPUs are in short supply and highly profitable. The core motivation for cloud providers to develop AI accelerators (AWS Trainium, Google TPU, Azure Maia) is to reduce NVIDIA dependence, control costs, and optimize performance for their specific workloads." },
+      { q: "Where is SiC (Silicon Carbide) power semiconductor primarily applied?", opts: ["Smartphone display drivers","PC CPUs","EV traction inverters and charging systems","Home audio equipment"], ans: 2, exp: "SiC power semiconductors feature high voltage resistance, high frequency, and high temperature characteristics — especially suited for EV traction inverters and fast-charging systems, significantly improving energy efficiency and charging speed. Tesla was an early large-scale adopter." },
+      { q: "What semiconductor component does training large language models (like GPT-4) primarily depend on?", opts: ["Traditional CPUs","DRAM memory","NVIDIA GPUs (like H100)","NAND Flash storage"], ans: 2, exp: "LLM training requires enormous floating-point computation. NVIDIA H100 GPUs paired with HBM3 memory are the mainstream hardware for AI training — a large model training run can require thousands of H100s and cost hundreds of millions of dollars." },
+      { q: "What is the primary manifestation of the 'Digital Divide' in the semiconductor context?", opts: ["Urban vs. rural internet speed gaps","Widening technology gap between countries that master advanced chips and those that cannot access them","Age-group differences in smartphone usage","Chip procurement volume differences between large and small enterprises"], ans: 1, exp: "In the geopolitical semiconductor context, the digital divide refers to the growing chasm in economic competitiveness, military power, and technological development between countries capable of developing/manufacturing/accessing advanced AI chips (US, Japan, Taiwan, South Korea) and those that cannot." },
+      { q: "Which statement most accurately describes the importance of semiconductors to modern society?", opts: ["Semiconductors primarily affect consumer electronics, with limited impact on heavy industry","Semiconductors are foundational components of modern industrial civilization, with nearly all key industries deeply dependent","Semiconductor influence only became apparent after AI development","Semiconductors are important but can be replaced by other technologies"], ans: 1, exp: "From smartphones to automobiles, medical devices to power systems, defense weapons to agricultural irrigation — virtually all modern industrial and daily life infrastructure depends on semiconductor components. The 2021 chip shortage proved clearly: regardless of industry, chip supply disruption has severe consequences." },
+      { q: "What is the primary semiconductor demand that edge computing brings to the industry?", opts: ["Larger capacity NAND Flash","High-performance, low-power edge AI chips (NPUs)","Lower-priced traditional MCUs","Higher bandwidth DRAM memory"], ans: 1, exp: "Edge computing runs AI inference on local devices (phones, cameras, vehicles, factory sensors), requiring specially designed Neural Processing Units (NPUs) — designed with the primary goal of achieving high AI inference performance at extremely low power. Examples: Apple ANE, Qualcomm Hexagon DSP." }
+    ],
+
+    mlab_nav: "7. Interactive Lab",
+    mlab_title: "Interactive Lab: Semiconductor Industry Dynamic Visualizations",
+    mlab_desc: "Explore key semiconductor industry data and trends through adjustable dynamic charts and visualization tools, deepening your understanding of each topic.",
+
+    m6_nav: "6. External Resources",
+    m6_title: "External Resources & Further Reading",
+    m6_desc: "Curated official organizations, market intelligence, and learning resources for the semiconductor industry to deepen your knowledge.",
+
+    date: "Version 2026.03",
+    copyright: "© 2026 All rights reserved.",
+    architect: "Interactive Learning SPA"
+  }
+};
+
+// ── FlipCard Component ─────────────────────────────────────────
+const FlipCard = ({ front, back, t }) => {
+  const [flipped, setFlipped] = useState(false);
+  return (
+    <div className="perspective cursor-pointer h-36" onClick={() => setFlipped(!flipped)}>
+      <div className={`transform-style-3d relative w-full h-full transition-transform duration-500 ${flipped ? 'rotate-y-180' : ''}`}>
+        <div className="backface-hidden absolute inset-0 bg-white dark:bg-slate-800 rounded-xl p-4 flex flex-col items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm">
+          <p className="font-serif font-bold text-center text-[#004030] dark:text-[#D8C3A5] text-sm leading-snug">{front}</p>
+          <p className="text-xs text-slate-400 mt-2">{t.flip_prompt}</p>
+        </div>
+        <div className="backface-hidden rotate-y-180 absolute inset-0 bg-[#004030] dark:bg-slate-700 rounded-xl p-4 flex items-center justify-center">
+          <p className="text-xs text-center text-[#D8C3A5] dark:text-slate-200 leading-relaxed">{back}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── ModuleQuiz Component ───────────────────────────────────────
+const ModuleQuiz = ({ questions, allQuestions, t, moduleId, onQuizSubmit }) => {
+  const [selected, setSelected] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  // Store the fixed indices drawn from the questions array (stable across lang switch)
+  const [drawnIndices] = useState(() => {
+    const idxs = [...Array(questions.length).keys()].sort(() => Math.random() - 0.5).slice(0, 4);
+    return idxs;
+  });
+  // Derive displayed questions from current lang's questions using stable indices
+  const quizQs = drawnIndices.map(i => questions[i]);
+
+  const handleSubmit = () => {
+    if (Object.keys(selected).length < quizQs.length) return;
+    setSubmitted(true);
+    const correct = quizQs.filter((q, i) => selected[i] === q.ans).length;
+    onQuizSubmit(moduleId, correct, quizQs.length);
+  };
+
+  const handleRetry = () => { setSelected({}); setSubmitted(false); };
+
+  const correctCount = submitted ? quizQs.filter((q, i) => selected[i] === q.ans).length : 0;
+
+  return (
+    <div className="mt-10 border-t-2 border-[#D8C3A5] pt-8">
+      <h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-6">{t.quiz_title}</h3>
+      <div className="space-y-6">
+        {quizQs.map((q, qi) => (
+          <div key={qi} className={`bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border ${submitted ? (selected[qi] === q.ans ? 'border-emerald-400 dark:border-emerald-600' : 'border-rose-400 dark:border-rose-600') : 'border-slate-200 dark:border-slate-700'}`}>
+            <p className="font-semibold text-slate-800 dark:text-slate-200 mb-3 text-base">Q{qi+1}. {q.q}</p>
+            <div className="space-y-2">
+              {q.opts.map((opt, oi) => {
+                let cls = "w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-all ";
+                if (!submitted) {
+                  cls += selected[qi] === oi ? "border-[#004030] bg-[#004030]/10 text-[#004030] dark:border-[#D8C3A5] dark:bg-[#D8C3A5]/10 dark:text-[#D8C3A5] font-medium" : "border-slate-200 dark:border-slate-600 hover:border-[#004030] dark:hover:border-[#D8C3A5] text-slate-700 dark:text-slate-300";
+                } else {
+                  if (oi === q.ans) cls += "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 font-bold";
+                  else if (selected[qi] === oi) cls += "border-rose-400 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300 line-through";
+                  else cls += "border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500";
+                }
+                return <button key={oi} disabled={submitted} className={cls} onClick={() => setSelected(p => ({...p, [qi]: oi}))}>{oi === q.ans && submitted ? "✓ " : ""}{opt}</button>;
+              })}
+            </div>
+            {submitted && <div className="mt-3 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border-l-4 border-[#D8C3A5]"><span className="font-bold text-[#004030] dark:text-[#D8C3A5]">{t.explanation}：</span>{q.exp}</div>}
+          </div>
+        ))}
+      </div>
+      {!submitted ? (
+        <button onClick={handleSubmit} disabled={Object.keys(selected).length < quizQs.length}
+          className="mt-6 px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg hover:bg-[#002b20] dark:hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow">
+          {t.submit}
+        </button>
+      ) : (
+        <div className="mt-6 flex items-center gap-4 flex-wrap">
+          <div className="px-5 py-3 bg-[#004030]/10 dark:bg-[#D8C3A5]/10 rounded-lg text-[#004030] dark:text-[#D8C3A5] font-bold text-lg">
+            {t.score}: {correctCount} / {quizQs.length}
+          </div>
+          <button onClick={handleRetry} className="px-6 py-3 border-2 border-[#004030] dark:border-[#D8C3A5] text-[#004030] dark:text-[#D8C3A5] font-bold rounded-lg hover:bg-[#004030] hover:text-white dark:hover:bg-[#D8C3A5] dark:hover:text-[#004030] transition-colors">
+            {t.retry}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Main App ───────────────────────────────────────────────────
+// ── Lab Sub-Components (top-level to preserve React state) ──
+const MooreLab = ({lang}) => {
+  const isZh = lang === 'zh';
+  const [yearIdx, setYearIdx] = useState(14);
+  const data = [
+    {y:1971,n:2300,chip:'Intel 4004',co:'Intel'},
+    {y:1974,n:6000,chip:'Intel 8080',co:'Intel'},
+    {y:1979,n:29000,chip:'Intel 8088',co:'Intel'},
+    {y:1982,n:134000,chip:'Intel 286',co:'Intel'},
+    {y:1985,n:275000,chip:'Intel 386',co:'Intel'},
+    {y:1989,n:1200000,chip:'Intel 486',co:'Intel'},
+    {y:1993,n:3100000,chip:'Pentium',co:'Intel'},
+    {y:1997,n:7500000,chip:'Pentium II',co:'Intel'},
+    {y:2000,n:42000000,chip:'Pentium 4',co:'Intel'},
+    {y:2003,n:77000000,chip:'Pentium M',co:'Intel'},
+    {y:2006,n:291000000,chip:'Core 2 Duo',co:'Intel'},
+    {y:2008,n:820000000,chip:'Core i7',co:'Intel'},
+    {y:2012,n:3100000000,chip:'Ivy Bridge',co:'Intel'},
+    {y:2016,n:7200000000,chip:'Kaby Lake',co:'Intel'},
+    {y:2020,n:11800000000,chip:'Apple M1',co:'Apple/TSMC'},
+    {y:2022,n:20000000000,chip:'Apple M2',co:'Apple/TSMC'},
+    {y:2023,n:92000000000,chip:'Apple M3 Ultra',co:'Apple/TSMC'},
+    {y:2024,n:134000000000,chip:'Apple M4',co:'Apple/TSMC'},
+  ];
+  const W=520, H=260, PL=60, PR=20, PT=20, PB=40;
+  const minLog=0, maxLog=12;
+  const xScale = i => PL + (i/(data.length-1))*(W-PL-PR);
+  const yScale = v => PT + (1-(v-minLog)/(maxLog-minLog))*(H-PT-PB);
+  const current = data[yearIdx];
+  const pts = data.slice(0,yearIdx+1).map((d,i)=>`${xScale(i)},${yScale(Math.log10(d.n))}`).join(' ');
+  const fmtN = n => n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(0)+'K':String(n);
+  const gridLogs = [3,6,9,12];
+  const gridLabels = isZh ? ['1千','1百萬','10億','1兆'] : ['1K','1M','1B','1T'];
+  const idealPts = data.map((d,i)=>{
+    const v = Math.min(Math.log10(2300*Math.pow(2,(d.y-1971)/2)), maxLog);
+    return `${xScale(i)},${yScale(v)}`;
+  }).join(' ');
+  const bx2 = Math.min(xScale(yearIdx)-55, W-PR-110);
+  const by2 = yScale(Math.log10(current.n)) - 48 < PT ? yScale(Math.log10(current.n))+10 : yScale(Math.log10(current.n))-48;
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] text-lg mb-1">
+        {isZh ? '摩爾定律：電晶體數量指數成長' : "Moore's Law: Exponential Transistor Growth"}
+      </h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+        {isZh ? '拖動滑桿或點擊圖上圓點，即時查看代表晶片資訊（對數刻度）' : 'Drag slider or click a dot to explore each chip era (log scale)'}
+      </p>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full cursor-pointer" style={{maxHeight:240}}>
+        {gridLogs.map((g,gi)=>(
+          <g key={g}>
+            <line x1={PL} x2={W-PR} y1={yScale(g)} y2={yScale(g)} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4,4"/>
+            <text x={PL-6} y={yScale(g)+4} textAnchor="end" fontSize="9" fill="#94a3b8">{gridLabels[gi]}</text>
+          </g>
+        ))}
+        <polyline points={idealPts} fill="none" stroke="#D8C3A5" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.7"/>
+        {yearIdx > 0 && <polyline points={pts} fill="none" stroke="#004030" strokeWidth="2.5"/>}
+        {data.map((d,i)=>(
+          <circle key={i} cx={xScale(i)} cy={yScale(Math.log10(d.n))}
+            r={i===yearIdx ? 7 : 4}
+            fill={i===yearIdx ? '#004030' : '#D8C3A5'}
+            stroke="white" strokeWidth="1.5"
+            style={{cursor:'pointer'}}
+            onClick={()=>setYearIdx(i)}/>
+        ))}
+        {data.map((d,i)=>i%4===0&&(
+          <text key={i} x={xScale(i)} y={H-6} textAnchor="middle" fontSize="9" fill="#94a3b8">{d.y}</text>
+        ))}
+        <rect x={bx2} y={by2} width={110} height={38} rx="5" fill="#004030" opacity="0.93"/>
+        <text x={bx2+55} y={by2+14} textAnchor="middle" fontSize="9" fill="#D8C3A5" fontWeight="bold">{current.chip} ({current.co})</text>
+        <text x={bx2+55} y={by2+28} textAnchor="middle" fontSize="9" fill="white">{current.y} · {fmtN(current.n)}</text>
+      </svg>
+      <input type="range" min={0} max={data.length-1} value={yearIdx}
+        onChange={e=>setYearIdx(+e.target.value)}
+        className="w-full mt-2 cursor-pointer" style={{accentColor:'#004030'}}/>
+      <div className="mt-3 flex flex-wrap gap-3 text-sm">
+        <div className="bg-[#004030]/10 dark:bg-[#D8C3A5]/10 rounded-lg px-4 py-2 flex-1 min-w-[90px]">
+          <span className="text-[10px] uppercase tracking-wide text-slate-500 block">{isZh?'年份':'Year'}</span>
+          <span className="font-black font-serif text-xl text-[#004030] dark:text-[#D8C3A5]">{current.y}</span>
+        </div>
+        <div className="bg-[#004030]/10 dark:bg-[#D8C3A5]/10 rounded-lg px-4 py-2 flex-[2] min-w-[130px]">
+          <span className="text-[10px] uppercase tracking-wide text-slate-500 block">{isZh?'代表晶片':'Chip'}</span>
+          <span className="font-bold text-sm text-[#004030] dark:text-[#D8C3A5]">{current.chip}</span>
+          <span className="text-xs text-slate-500 ml-1">({current.co})</span>
+        </div>
+        <div className="bg-[#004030]/10 dark:bg-[#D8C3A5]/10 rounded-lg px-4 py-2 flex-1 min-w-[90px]">
+          <span className="text-[10px] uppercase tracking-wide text-slate-500 block">{isZh?'電晶體數':'Transistors'}</span>
+          <span className="font-black font-serif text-xl text-[#004030] dark:text-[#D8C3A5]">{fmtN(current.n)}</span>
+        </div>
+      </div>
+      <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
+        <span className="flex items-center gap-1"><span className="inline-block w-6 border-t-2 border-dashed border-[#D8C3A5]"></span>{isZh?'理想倍增':'Ideal doubling'}</span>
+        <span className="flex items-center gap-1"><span className="inline-block w-6 border-t-2 border-[#004030]"></span>{isZh?'實際數據':'Actual'}</span>
+      </div>
+    </div>
+  );
+};
+
+const MarketShareLab = ({lang}) => {
+  const isZh = lang === 'zh';
+  const [selYear, setSelYear] = useState(2);
+  const years = [2019, 2021, 2023, 2025];
+  const allData = [
+    [{r:isZh?'美洲':'Americas',v:51},{r:isZh?'歐洲':'Europe',v:8},{r:isZh?'日本':'Japan',v:10},{r:isZh?'亞太':'Asia-Pacific',v:31}],
+    [{r:isZh?'美洲':'Americas',v:54},{r:isZh?'歐洲':'Europe',v:8},{r:isZh?'日本':'Japan',v:9},{r:isZh?'亞太':'Asia-Pacific',v:29}],
+    [{r:isZh?'美洲':'Americas',v:55},{r:isZh?'歐洲':'Europe',v:9},{r:isZh?'日本':'Japan',v:8},{r:isZh?'亞太':'Asia-Pacific',v:28}],
+    [{r:isZh?'美洲':'Americas',v:53},{r:isZh?'歐洲':'Europe',v:10},{r:isZh?'日本':'Japan',v:8},{r:isZh?'亞太':'Asia-Pacific',v:29}],
+  ];
+  const rows = allData[selYear];
+  const barColors = ['#004030','#D8C3A5','#6b7280','#334155'];
+  const textColors = ['#D8C3A5','#004030','white','white'];
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] text-lg mb-1">{isZh?'全球半導體市場地區分佈':'Global Semiconductor Market by Region'}</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{isZh?'點選年份查看各地區銷售佔比':'Click a year to see regional sales share'}</p>
+      <div className="flex gap-2 mb-5">
+        {years.map((y,i)=>(
+          <button key={y} onClick={()=>setSelYear(i)}
+            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all border-2 ${selYear===i?'bg-[#004030] border-[#004030] text-white shadow-md':'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-[#004030]'}`}>{y}</button>
+        ))}
+      </div>
+      <div className="space-y-3">
+        {rows.map((d,i)=>(
+          <div key={i} className="flex items-center gap-3">
+            <div className="w-24 text-xs font-semibold text-slate-600 dark:text-slate-400 text-right shrink-0">{d.r}</div>
+            <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-8 overflow-hidden">
+              <div className="h-full rounded-full flex items-center justify-end pr-3 transition-all duration-500 ease-out"
+                style={{width:`${d.v}%`, backgroundColor:barColors[i]}}>
+                <span className="text-xs font-black" style={{color:textColors[i]}}>{d.v}%</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-slate-400 mt-3">{isZh?'資料來源：WSTS / SIA 估算':'Source: WSTS / SIA estimates'}</p>
+    </div>
+  );
+};
+
+const NodeRaceLab = ({lang}) => {
+  const isZh = lang === 'zh';
+  const [hoveredCell, setHoveredCell] = useState(null);
+  const nodes = ['28nm','16/14nm','10/7nm','5/4nm','3nm','2nm'];
+  const companies = [
+    {name:'TSMC',   years:[2011,2015,2018,2020,2022,2025]},
+    {name:'Samsung',years:[2014,2015,2017,2021,2022,2025]},
+    {name:'Intel',  years:[2011,2014,2019,2021,2024,2026]},
+    {name:'SMIC',   years:[2015,2019,2022,null,null,null]},
+  ];
+  const now = 2025;
+  const getStatus = yr => !yr ? 'none' : yr <= now ? 'done' : 'plan';
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] text-lg mb-1">{isZh?'先進製程競賽：各廠導入時間':'Process Node Race: Foundry Timeline'}</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">{isZh?'懸停各格查看導入年份':'Hover each cell to see the year'}</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr>
+              <th className="text-left px-2 py-2 text-slate-400 font-medium w-20">{isZh?'廠商':'Fab'}</th>
+              {nodes.map(n=><th key={n} className="text-center px-1 py-2 font-mono font-bold text-[#004030] dark:text-[#D8C3A5]">{n}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {companies.map((co,ci)=>(
+              <tr key={ci} className="border-t border-slate-100 dark:border-slate-700">
+                <td className="px-2 py-3 font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{co.name}</td>
+                {co.years.map((yr,ni)=>{
+                  const st = getStatus(yr);
+                  const key = `${ci}-${ni}`;
+                  const isHov = hoveredCell===key;
+                  return (
+                    <td key={ni} className="text-center px-1 py-2"
+                      onMouseEnter={()=>setHoveredCell(key)}
+                      onMouseLeave={()=>setHoveredCell(null)}>
+                      <div className={`mx-auto w-11 h-11 rounded-lg flex flex-col items-center justify-center transition-all select-none
+                        ${st==='done'?'bg-[#004030] text-[#D8C3A5]':st==='plan'?'bg-[#D8C3A5]/50 dark:bg-[#D8C3A5]/20 text-[#004030] dark:text-[#D8C3A5] border-2 border-dashed border-[#004030]/40':'bg-slate-100 dark:bg-slate-700 text-slate-400'}
+                        ${isHov?'scale-110 shadow-lg ring-2 ring-[#004030] dark:ring-[#D8C3A5]':''}`}>
+                        <span className="text-base font-bold leading-none">{st==='done'?'✓':st==='plan'?'○':'–'}</span>
+                        {isHov && yr && <span className="text-[9px] font-bold mt-0.5">{yr}</span>}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-3 flex gap-4 text-xs text-slate-500">
+        <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-[#004030] inline-block"></span>{isZh?'已量產':'In Production'}</span>
+        <span className="flex items-center gap-1"><span className="w-4 h-4 rounded border-2 border-dashed border-[#004030]/40 inline-block"></span>{isZh?'規劃中':'Planned'}</span>
+        <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-slate-200 dark:bg-slate-700 inline-block"></span>{isZh?'暫無':'N/A'}</span>
+      </div>
+    </div>
+  );
+};
+
+const RadarLab = ({lang}) => {
+  const isZh = lang === 'zh';
+  const [selCountry, setSelCountry] = useState(0);
+  const countries = [
+    {name:isZh?'台灣 🇹🇼':'Taiwan 🇹🇼', scores:[95,40,70,30,20,60]},
+    {name:isZh?'美國 🇺🇸':'USA 🇺🇸',    scores:[85,90,50,90,70,60]},
+    {name:isZh?'南韓 🇰🇷':'S.Korea 🇰🇷', scores:[90,60,65,50,40,55]},
+    {name:isZh?'中國 🇨🇳':'China 🇨🇳',   scores:[60,30,80,40,15,75]},
+    {name:isZh?'日本 🇯🇵':'Japan 🇯🇵',   scores:[50,70,40,60,40,65]},
+    {name:isZh?'歐盟 🇪🇺':'EU 🇪🇺',      scores:[30,55,35,70,65,40]},
+  ];
+  const axes = isZh
+    ? ['先進製程','IC設計','記憶體','設備材料','政策力度','市場規模']
+    : ['Adv.Process','IC Design','Memory','Equip/Mat','Policy','Market'];
+  const N = axes.length;
+  const cx=120, cy=120, R=85;
+  const country = countries[selCountry];
+  const getXY = (score,i) => {
+    const angle = (Math.PI*2*i/N)-Math.PI/2;
+    return [cx+(score/100)*R*Math.cos(angle), cy+(score/100)*R*Math.sin(angle)];
+  };
+  const polygon = country.scores.map((s,i)=>getXY(s,i).join(',')).join(' ');
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] text-lg mb-1">{isZh?'各國半導體實力雷達圖':'National Semiconductor Capability Radar'}</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{isZh?'點選國家按鈕比較六大維度（示意評估）':'Click a country to compare six capability dimensions (indicative)'}</p>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {countries.map((c,i)=>(
+          <button key={i} onClick={()=>setSelCountry(i)}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border-2 ${selCountry===i?'bg-[#004030] border-[#004030] text-white shadow-md scale-105':'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-[#004030] dark:hover:border-[#D8C3A5]'}`}>{c.name}</button>
+        ))}
+      </div>
+      <div className="flex flex-col md:flex-row items-center gap-5">
+        <svg viewBox="0 0 240 240" className="w-52 shrink-0">
+          {[20,40,60,80,100].map(pct=>(
+            <polygon key={pct} points={Array.from({length:N},(_,i)=>{
+              const a=(Math.PI*2*i/N)-Math.PI/2;
+              return `${cx+(pct/100)*R*Math.cos(a)},${cy+(pct/100)*R*Math.sin(a)}`;
+            }).join(' ')} fill="none" stroke="#e2e8f0" strokeWidth="0.8"/>
+          ))}
+          {Array.from({length:N},(_,i)=>{
+            const a=(Math.PI*2*i/N)-Math.PI/2;
+            return <line key={i} x1={cx} y1={cy} x2={cx+R*Math.cos(a)} y2={cy+R*Math.sin(a)} stroke="#e2e8f0" strokeWidth="0.8"/>;
+          })}
+          {axes.map((ax,i)=>{
+            const a=(Math.PI*2*i/N)-Math.PI/2;
+            return <text key={i} x={cx+(R+18)*Math.cos(a)} y={cy+(R+18)*Math.sin(a)+3} textAnchor="middle" fontSize="8.5" fill="#94a3b8" fontWeight="600">{ax}</text>;
+          })}
+          <polygon points={polygon} fill="#004030" fillOpacity="0.2" stroke="#004030" strokeWidth="2.5"/>
+          {country.scores.map((s,i)=>{
+            const [px,py]=getXY(s,i);
+            return <circle key={i} cx={px} cy={py} r="4.5" fill="#004030" stroke="white" strokeWidth="1.5"/>;
+          })}
+        </svg>
+        <div className="flex-1 space-y-2 w-full">
+          {axes.map((ax,i)=>(
+            <div key={i} className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 dark:text-slate-400 w-20 shrink-0 leading-tight">{ax}</span>
+              <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-5 overflow-hidden">
+                <div className="h-full bg-[#004030] dark:bg-[#D8C3A5] rounded-full transition-all duration-500"
+                  style={{width:`${country.scores[i]}%`}}></div>
+              </div>
+              <span className="text-xs font-bold text-[#004030] dark:text-[#D8C3A5] w-7 text-right">{country.scores[i]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AIGrowthLab = ({lang}) => {
+  const isZh = lang === 'zh';
+  const [showAI, setShowAI] = useState(true);
+  const [showTotal, setShowTotal] = useState(true);
+  const [hov, setHov] = useState(null);
+  const data = [
+    {y:'2018',total:469,ai:6},{y:'2019',total:412,ai:8},{y:'2020',total:440,ai:14},
+    {y:'2021',total:556,ai:26},{y:'2022',total:574,ai:45},{y:'2023',total:527,ai:90},
+    {y:'2024',total:611,ai:170},{y:'2025',total:697,ai:280,proj:true},{y:'2026',total:780,ai:400,proj:true},
+  ];
+  const W=480,H=200,PL=52,PR=16,PT=20,PB=36;
+  const maxV=850;
+  const xS = i => PL+i*(W-PL-PR)/(data.length-1);
+  const yS = v => PT+(1-v/maxV)*(H-PT-PB);
+  const totalPts = data.map((d,i)=>`${xS(i)},${yS(d.total)}`).join(' ');
+  const aiPts    = data.map((d,i)=>`${xS(i)},${yS(d.ai)}`).join(' ');
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] text-lg mb-1">{isZh?'AI晶片需求 vs 全球半導體市場':'AI Chip Demand vs. Global Semiconductor Market'}</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{isZh?'點選圖例切換顯示，懸停資料點查看數值（$B）':'Toggle series, hover data points for values ($B)'}</p>
+      <div className="flex gap-3 mb-3 flex-wrap">
+        <button onClick={()=>setShowTotal(v=>!v)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all ${showTotal?'bg-[#004030] border-[#004030] text-white':'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400'}`}>
+          <span className="w-4 border-t-2 border-current inline-block"></span>{isZh?'整體市場':'Total Market'}
+        </button>
+        <button onClick={()=>setShowAI(v=>!v)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all ${showAI?'bg-[#D8C3A5] border-[#D8C3A5] text-[#004030]':'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400'}`}>
+          <span className="w-4 border-t-2 border-current inline-block"></span>{isZh?'AI晶片':'AI Chips'}
+        </button>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible" style={{maxHeight:210}}>
+        {[0,200,400,600,800].map(g=>(
+          <g key={g}>
+            <line x1={PL} x2={W-PR} y1={yS(g)} y2={yS(g)} stroke="#f1f5f9" strokeWidth="1"/>
+            <text x={PL-4} y={yS(g)+4} textAnchor="end" fontSize="9" fill="#94a3b8">${g}B</text>
+          </g>
+        ))}
+        {showTotal && <polyline points={totalPts} fill="none" stroke="#004030" strokeWidth="2.5"/>}
+        {showAI    && <polyline points={aiPts}    fill="none" stroke="#D8C3A5" strokeWidth="2.5"/>}
+        {data.map((d,i)=>(
+          <g key={i} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)} style={{cursor:'pointer'}}>
+            {showTotal && <circle cx={xS(i)} cy={yS(d.total)} r={hov===i?7:4.5}
+              fill={d.proj?'white':'#004030'} stroke="#004030" strokeWidth="2" className="transition-all"/>}
+            {showAI && <circle cx={xS(i)} cy={yS(d.ai)} r={hov===i?7:4.5}
+              fill={d.proj?'white':'#D8C3A5'} stroke="#D8C3A5" strokeWidth="2" className="transition-all"/>}
+            <text x={xS(i)} y={H-PB+14} textAnchor="middle" fontSize="9" fill="#94a3b8">{d.y.slice(2)}{d.proj?'*':''}</text>
+            {hov===i && (
+              <g>
+                <rect x={Math.max(PL, Math.min(xS(i)-42, W-PR-84))} y={yS(d.total)-54} width="84" height={showAI&&showTotal?46:28} rx="6" fill="#1e293b" opacity="0.95"/>
+                <text x={Math.max(PL, Math.min(xS(i)-42, W-PR-84))+42} y={yS(d.total)-40} textAnchor="middle" fontSize="9" fill="#D8C3A5" fontWeight="bold">{d.y}{d.proj?' est.':''}</text>
+                {showTotal && <text x={Math.max(PL, Math.min(xS(i)-42, W-PR-84))+42} y={yS(d.total)-27} textAnchor="middle" fontSize="9" fill="white">{isZh?'總市場':'Total'}: ${d.total}B</text>}
+                {showAI    && <text x={Math.max(PL, Math.min(xS(i)-42, W-PR-84))+42} y={yS(d.total)-14} textAnchor="middle" fontSize="9" fill="#D8C3A5">{isZh?'AI':'AI'}: ${d.ai}B</text>}
+              </g>
+            )}
+          </g>
+        ))}
+      </svg>
+      <p className="text-xs text-slate-400 mt-1">{isZh?'* 2025–2026為預測值｜來源：WSTS / IDC / Gartner':'* 2025–2026 projections | Source: WSTS / IDC / Gartner'}</p>
+    </div>
+  );
+};
+
+const SupplyChainLab = ({lang}) => {
+  const isZh = lang === 'zh';
+  const [active, setActive] = useState(null);
+  const layers = [
+    {id:'raw',   label:isZh?'① 原材料':'① Raw Materials',       color:'bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600',
+      players:[{n:'信越化學',r:isZh?'矽晶圓 ~30% 市佔':'Silicon Wafer ~30%'},{n:'Sumco',r:isZh?'矽晶圓 ~25% 市佔':'Silicon Wafer ~25%'},{n:'BASF/JSR',r:isZh?'光阻劑':'Photoresist'},{n:'Sumitomo',r:isZh?'特殊氣體':'Specialty gases'}]},
+    {id:'equip', label:isZh?'② 製造設備':'② Equipment',          color:'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700',
+      players:[{n:'ASML',r:isZh?'EUV 光刻機 唯一供應商':'EUV sole supplier'},{n:'Applied Materials',r:isZh?'CVD/PVD #1':'CVD/PVD #1'},{n:'東京電子 TEL',r:isZh?'塗布顯影':'Coater/Dev'},{n:'KLA',r:isZh?'量測檢測':'Metrology'}]},
+    {id:'fab',   label:isZh?'③ 晶圓製造':'③ Wafer Fab',          color:'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700',
+      players:[{n:'台積電 TSMC',r:isZh?'先進邏輯 >60%':'Adv. Logic >60%'},{n:'Samsung',r:isZh?'DRAM+邏輯':'DRAM+Logic'},{n:'SK Hynix',r:isZh?'HBM領導者':'HBM Leader'},{n:'Micron',r:isZh?'DRAM/NAND':'DRAM/NAND'}]},
+    {id:'design',label:isZh?'④ IC 設計':'④ IC Design',           color:'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700',
+      players:[{n:'NVIDIA',r:isZh?'AI GPU #1':'AI GPU #1'},{n:'Apple',r:isZh?'A/M系列SoC':'A/M-series'},{n:'Qualcomm',r:isZh?'手機AP':'Mobile AP'},{n:'AMD',r:isZh?'CPU/GPU':'CPU/GPU'}]},
+    {id:'osat',  label:isZh?'⑤ 封裝測試':'⑤ OSAT',              color:'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700',
+      players:[{n:'日月光 ASE',r:isZh?'全球最大OSAT':'Largest OSAT'},{n:'TSMC CoWoS',r:isZh?'AI先進封裝':'AI Adv. Pkg'},{n:'Amkor',r:isZh?'第二大OSAT':'2nd OSAT'},{n:'京元電',r:isZh?'測試服務':'IC Testing'}]},
+    {id:'end',   label:isZh?'⑥ 終端應用':'⑥ End Applications',   color:'bg-rose-50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-700',
+      players:[{n:isZh?'手機/PC':'Mobile/PC',r:'~40%'},{n:'AI/Cloud',r:'~25%'},{n:isZh?'汽車':'Auto',r:'~15%'},{n:isZh?'工業/IoT':'Industrial',r:'~20%'}]},
+  ];
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] text-lg mb-1">{isZh?'半導體供應鏈互動地圖':'Semiconductor Supply Chain Interactive Map'}</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">{isZh?'點擊各層展開代表廠商':'Click each layer to reveal key players'}</p>
+      <div className="space-y-2">
+        {layers.map((layer)=>(
+          <div key={layer.id}>
+            <button onClick={()=>setActive(a=>a===layer.id?null:layer.id)}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all border-2 ${layer.color} ${active===layer.id?'ring-2 ring-[#004030] dark:ring-[#D8C3A5] shadow-md':''} hover:shadow`}>
+              <span>{layer.label}</span>
+              <span style={{display:'inline-block',transition:'transform 0.2s',transform:active===layer.id?'rotate(180deg)':'rotate(0deg)'}}>▼</span>
+            </button>
+            {active===layer.id && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1.5 ml-2">
+                {layer.players.map((p,i)=>(
+                  <div key={i} className="bg-white dark:bg-slate-800 rounded-lg px-3 py-2.5 border border-slate-200 dark:border-slate-600 shadow-sm">
+                    <div className="font-bold text-xs text-[#004030] dark:text-[#D8C3A5] leading-snug">{p.n}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{p.r}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
+        <span>←</span><div className="flex-1 border-t border-dashed border-slate-300 dark:border-slate-600"></div><span>→</span>
+        <span className="shrink-0">{isZh?'價值鏈流向':'Value Chain Flow'}</span>
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  const [lang, setLang] = useState('zh');
+  const [isDark, setIsDark] = useState(false);
+  const [module, setModule] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [ttsState, setTtsState] = useState('idle');
+  const [studentInfo, setStudentInfo] = useState({ group:'', dept:'', id:'', name:'' });
+  const [analytics, setAnalytics] = useState({
+    time: Array(8).fill(0), clicks: Array(8).fill(0),
+    quizCorrect: Array(8).fill(0), quizTotal: Array(8).fill(0)
+  });
+  const contentRef = useRef(null);
+  const t = dict[lang];
+  const TOTAL = 9; // 1 overview + 5 learning + 1 resources + 1 lab + 1 analytics
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
+
+  useEffect(() => { window.scrollTo({top:0,behavior:'smooth'}); }, [module]);
+
+  useEffect(() => {
+    if (module >= 6) return;
+    const timer = setInterval(() => {
+      setAnalytics(prev => { const t2=[...prev.time]; t2[module]+=1; return {...prev,time:t2}; });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [module]);
+
+  const handleMainClick = () => {
+    if (module >= 8) return;
+    setAnalytics(prev => { const c=[...prev.clicks]; c[module]+=1; return {...prev,clicks:c}; });
+  };
+
+  const handleQuizSubmit = (modId, correct, total) => {
+    setAnalytics(prev => {
+      const qc=[...prev.quizCorrect], qt=[...prev.quizTotal];
+      qc[modId]+=correct; qt[modId]+=total;
+      return {...prev,quizCorrect:qc,quizTotal:qt};
+    });
+  };
+
+  const handleTTS = (action) => {
+    if (!('speechSynthesis' in window)) return;
+    if (action==='stop') { window.speechSynthesis.cancel(); setTtsState('idle'); return; }
+    if (action==='pause') { window.speechSynthesis.pause(); setTtsState('paused'); return; }
+    if (action==='play') {
+      if (ttsState==='paused') { window.speechSynthesis.resume(); setTtsState('playing'); return; }
+      window.speechSynthesis.cancel();
+      // Build rich TTS narration per module from all available dict text
+      const buildM3Text = () => {
+        const upstream = (t.m3_upstream||[]).map(x=>x.name+': '+x.role+'. '+x.desc).join('。 ');
+        const mid = (t.m3_midstream||[]).map(x=>x.name+': '+x.role+'. '+x.desc).join('。 ');
+        const down = (t.m3_downstream||[]).map(x=>x.name+': '+x.role+'. '+x.desc).join('。 ');
+        return [t.m3_title, t.m3_p1, t.m3_p2, upstream, mid, down].join('。 ');
+      };
+      const buildM4Text = () => {
+        const countries = (t.m4_countries||[]).map(c=>c.country+': 優勢：'+c.strength+'. 代表廠商：'+c.champion+'. 政策：'+c.policy+'. 風險：'+c.risk).join('。 ');
+        return [t.m4_title, t.m4_p1, t.m4_p2, countries].join('。 ');
+      };
+      const buildM5Text = () => {
+        const impacts = (t.m5_impact_items||[]).map(x=>x.sector+': '+x.desc).join('。 ');
+        return [t.m5_title, t.m5_p1, t.m5_p2, impacts, t.m5_alert+'. '+t.m5_alert_desc].join('。 ');
+      };
+      const buildM6Text = () => {
+        const semiIntro = lang==='zh'
+          ? 'SEMI，全球半導體製造供應鏈行業協會，提供市場情報、會展活動、SEMI標準與政策倡議服務。'
+          : 'SEMI is the global semiconductor manufacturing supply chain industry association, providing market intelligence, events, SEMI Standards, and policy advocacy.';
+        const wstsIntro = lang==='zh'
+          ? 'WSTS，世界半導體貿易統計組織，提供全球半導體月度銷售數據、季度預測報告。'
+          : 'WSTS, the World Semiconductor Trade Statistics organization, provides monthly global semiconductor sales data and quarterly forecast reports.';
+        const otherIntro = lang==='zh'
+          ? '其他精選資源包括：IC Insights產業研究報告、TechInsights晶片拆解分析、SemiAnalysis深度電子報、美國BIS出口管制政策、歐盟晶片法案、台灣經濟部政策，以及Intel、ASML、台積電官方教育影片與MIT公開課程。'
+          : 'Other curated resources include: IC Insights industry research, TechInsights chip teardown analysis, SemiAnalysis newsletter, US BIS export controls, EU Chips Act, Taiwan MOEA policy, plus official educational videos from Intel, ASML, TSMC, and MIT OpenCourseWare.';
+        return [t.m6_title, t.m6_desc, semiIntro, wstsIntro, otherIntro].join('。 ');
+      };
+      const buildM0Text = () => {
+        const mods = (t.m0_modules||[]).map(m=>m.num+'. '+m.title+': '+m.desc).join('。 ');
+        const stats = (t.m0_stats||[]).map(s=>s.label+': '+s.val).join('，');
+        return [t.m0_title, t.m0_intro, t.m0_why, t.m0_why_desc, stats, mods].join('。 ');
+      };
+      const buildM1Text = () => [
+        t.m1_title, t.m1_p1, t.m1_p2, t.m1_p3,
+        t.m1_era1+'. '+t.m1_era1_desc,
+        t.m1_era2+'. '+t.m1_era2_desc,
+        t.m1_era3+'. '+t.m1_era3_desc,
+        t.m1_highlight+'. '+t.m1_highlight_desc
+      ].join('。 ');
+      const buildM2Text = () => {
+        const techRows = (t.m2_tech1_items||[]).map(r=>r.era+': '+r.nm+'. '+r.desc).join('。 ');
+        return [t.m2_title, t.m2_p1, t.m2_p2, t.m2_p3, t.m2_tech1+': '+techRows].join('。 ');
+      };
+      const buildAnalyticsText = () => [
+        t.analytics_title, t.analytics_desc,
+        lang==='zh'
+          ? '本頁面追蹤您在各模組的停留時間、互動點擊次數與測驗答對率，填寫完整基本資料後可匯出CSV學習歷程記錄。'
+          : 'This page tracks your time spent, interaction clicks, and quiz accuracy per module. Fill in your complete student information to unlock the CSV learning record export.'
+      ].join('。 ');
+
+      const buildLabText = () => lang==='zh' ? t.mlab_title+'。 '+t.mlab_desc : t.mlab_title+'. '+t.mlab_desc;
+      const textFnMap = [buildM0Text, buildM1Text, buildM2Text, buildM3Text, buildM4Text, buildM5Text, buildM6Text, buildLabText, buildAnalyticsText];
+      const textToRead = textFnMap[Math.min(module, textFnMap.length-1)]();
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.rate = 0.95;
+      const voices = window.speechSynthesis.getVoices();
+      if (lang === 'zh') {
+        const twVoice = voices.find(v => v.lang==='zh-TW' && v.name.includes('Yating'))
+                     || voices.find(v => v.lang==='zh-TW')
+                     || voices.find(v => v.lang.startsWith('zh'));
+        if (twVoice) utterance.voice = twVoice;
+        utterance.lang = 'zh-TW';
+      } else {
+        const ukVoice = voices.find(v => v.lang.includes('en-GB') && v.name.toLowerCase().includes('male'))
+                     || voices.find(v => v.lang.includes('en-GB') && v.name.includes('Daniel'))
+                     || voices.find(v => v.lang.includes('en-GB'))
+                     || voices.find(v => v.lang.startsWith('en'));
+        if (ukVoice) utterance.voice = ukVoice;
+        utterance.lang = 'en-GB';
+      }
+      utterance.onend = () => setTtsState('idle');
+      window.speechSynthesis.speak(utterance);
+      setTtsState('playing');
+    }
+  };
+
+  useEffect(() => { handleTTS('stop'); }, [module, lang]);
+  useEffect(() => {
+    if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => {};
+    return () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); };
+  }, []);
+
+  const modulesList = [
+    { id:0, title:t.m0_nav, icon:<IconBookOpen size={18}/> },
+    { id:1, title:t.m1_nav, icon:<IconTrendingUp size={18}/> },
+    { id:2, title:t.m2_nav, icon:<IconCpu size={18}/> },
+    { id:3, title:t.m3_nav, icon:<IconLayers size={18}/> },
+    { id:4, title:t.m4_nav, icon:<IconFlag size={18}/> },
+    { id:5, title:t.m5_nav, icon:<IconZap size={18}/> },
+    { id:6, title:t.m6_nav, icon:<IconGlobe size={18}/> },
+    { id:7, title:t.mlab_nav, icon:<IconZapLab size={18}/> },
+    { id:8, title:lang==='zh'?"學習歷程分析":"Learning Analytics", icon:<IconActivity size={18}/> },
+  ];
+
+  const handleExportCSV = () => {
+    if (!studentInfo.group||!studentInfo.dept||!studentInfo.id||!studentInfo.name) return;
+    let csv = "data:text/csv;charset=utf-8,\uFEFF";
+    csv += "Date,Time,Group,Dept,StudentID,Name,Module,TimeSpent(s),Clicks,Correct,Answered,TotalQuestions,Accuracy(%)\n";
+    const now = new Date();
+    modulesList.slice(0,8).forEach((m,idx) => {
+      const answered = analytics.quizTotal[idx];
+      const acc = answered>0 ? Math.round((analytics.quizCorrect[idx]/answered)*100) : 0;
+      csv += [now.toLocaleDateString('zh-TW'),now.toLocaleTimeString('zh-TW'),
+        studentInfo.group,studentInfo.dept,studentInfo.id,studentInfo.name,
+        m.title.replace(/,/g,'，'),analytics.time[idx],analytics.clicks[idx],
+        analytics.quizCorrect[idx],answered,8,acc].join(',') + '\n';
+    });
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csv));
+    link.setAttribute('download', `Analytics_${studentInfo.id}_${now.getTime()}.csv`);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  };
+
+  // ── Analytics Dashboard ──────────────────────────────────────
+  const renderAnalytics = () => {
+    const totalTime = analytics.time.reduce((a,b)=>a+b,0);
+    const totalClicks = analytics.clicks.reduce((a,b)=>a+b,0);
+    const sumCorrect = analytics.quizCorrect.reduce((a,b)=>a+b,0);
+    const sumTotal = analytics.quizTotal.reduce((a,b)=>a+b,0);
+    const overallAcc = sumTotal>0 ? Math.round((sumCorrect/sumTotal)*100) : 0;
+    const isFormValid = studentInfo.group&&studentInfo.dept&&studentInfo.id&&studentInfo.name;
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.analytics_title}</h2>
+        <p className="text-slate-600 dark:text-slate-400">{t.analytics_desc}</p>
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: t.analytics_total_time, val: `${totalTime}${t.analytics_sec}` },
+            { label: t.analytics_total_clicks, val: `${totalClicks}${t.analytics_times}` },
+            { label: t.analytics_overall_acc, val: `${overallAcc}%` }
+          ].map((s,i) => (
+            <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-4 text-center shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="text-2xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{s.val}</div>
+              <div className="text-xs text-slate-500 mt-1">{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="grid grid-cols-12 bg-[#004030] text-white text-xs font-bold uppercase tracking-wide px-4 py-3">
+            <div className="col-span-4">{t.analytics_module}</div>
+            <div className="col-span-2 text-right">{t.analytics_time}</div>
+            <div className="col-span-2 text-right">{t.analytics_clicks}</div>
+            <div className="col-span-2 text-right">{t.analytics_acc}</div>
+            <div className="col-span-2 text-right hidden md:block">{t.analytics_correct_ans_total}</div>
+          </div>
+          {modulesList.slice(0,8).map((m,idx) => {
+            const answered = analytics.quizTotal[idx];
+            const acc = answered>0 ? Math.round((analytics.quizCorrect[idx]/answered)*100) : null;
+            return (
+              <div key={idx} className="grid grid-cols-12 px-4 py-3 border-t border-slate-100 dark:border-slate-700 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                <div className="col-span-4 font-medium text-slate-800 dark:text-slate-200 truncate">{m.title}</div>
+                <div className="col-span-2 text-right text-slate-600 dark:text-slate-400">{analytics.time[idx]}{t.analytics_sec}</div>
+                <div className="col-span-2 text-right text-slate-600 dark:text-slate-400">{analytics.clicks[idx]}</div>
+                <div className="col-span-2 text-right font-bold" style={{color: acc===null?'#94a3b8':acc>=80?'#16a34a':acc>=60?'#d97706':'#dc2626'}}>
+                  {acc===null ? t.analytics_no_data : `${acc}%`}
+                </div>
+                <div className="col-span-2 text-right font-mono text-xs text-slate-500 dark:text-slate-400 hidden md:block">
+                  {answered>0 ? `${analytics.quizCorrect[idx]} / ${answered} / 8` : '--'}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+          <h3 className="font-bold font-serif text-lg text-[#004030] dark:text-[#D8C3A5] mb-4">{t.analytics_form_title}</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1 block">{t.analytics_group}</label>
+              <select value={studentInfo.group} onChange={e=>setStudentInfo(p=>({...p,group:e.target.value}))} className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#004030]">
+                <option value="">--</option>
+                {t.group_options.map(g=><option key={g}>{g}</option>)}
+              </select>
+            </div>
+            {[['dept','analytics_dept','analytics_dept_ph'],['id','analytics_id','analytics_id_ph'],['name','analytics_name','analytics_name_ph']].map(([k,lk,pk])=>(
+              <div key={k}>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1 block">{t[lk]}</label>
+                <input value={studentInfo[k]} onChange={e=>setStudentInfo(p=>({...p,[k]:e.target.value}))} placeholder={t[pk]} className="w-full border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#004030]"/>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-end mt-4">
+            {!isFormValid && <span className="text-xs text-rose-500 sm:mr-4 mb-3 sm:mb-0">{t.analytics_fill_required}</span>}
+            <button onClick={handleExportCSV} disabled={!isFormValid} className="w-full sm:w-auto px-10 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg shadow-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition">{t.analytics_export_csv}</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+
+
+  // ── Interactive Lab (renderLab renders the top-level components) ──
+  const renderLab = () => (
+    <div className="space-y-8 animate-fade-in">
+      <div>
+        <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.mlab_title}</h2>
+        <p className="mt-4 text-slate-600 dark:text-slate-400">{t.mlab_desc}</p>
+      </div>
+      <MooreLab lang={lang}/>
+      <div className="grid md:grid-cols-2 gap-6">
+        <MarketShareLab lang={lang}/>
+        <NodeRaceLab lang={lang}/>
+      </div>
+      <RadarLab lang={lang}/>
+      <AIGrowthLab lang={lang}/>
+      <SupplyChainLab lang={lang}/>
+    </div>
+  );
+
+  // ── External Resources Module ─────────────────────────────────
+  const renderResources = () => {
+    const semi_links_zh = [
+      { label: "關於 SEMI — 組織簡介", url: "https://www.semi.org/en/about-semi", desc: "SEMI 是全球半導體及相關電子製造供應鏈的行業協會，會員超過3,000家，涵蓋材料、設備、IC設計、製造到封測各環節。" },
+      { label: "市場情報 — 產業報告", url: "https://www.semi.org/en/products-services/market-intelligence", desc: "提供半導體設備、材料、元件市場的季度/年度統計報告、預測分析與產業白皮書，是業界最權威的市場數據來源之一。" },
+      { label: "全球會展與活動", url: "https://www.semi.org/en/events", desc: "SEMICON 系列展覽（台灣、美國、歐洲、日本、韓國、中國）是全球最重要的半導體行業展覽，匯聚全球供應鏈廠商與技術趨勢。" },
+      { label: "SEMI 標準 (Standards)", url: "https://www.semi.org/en/products-services/semi-standards", desc: "制定全球半導體製造設備與材料的通用標準（如晶圓尺寸、介面規格），確保全球供應鏈互通性與製程一致性。" },
+      { label: "政策倡議 — 政府關係", url: "https://www.semi.org/en/advocacy", desc: "代表半導體業界進行政策倡議，涵蓋半導體補貼法案（CHIPS Act）、供應鏈安全、人才培育等議題的政府遊說活動。" },
+    ];
+    const semi_links_en = [
+      { label: "About SEMI — Organization Overview", url: "https://www.semi.org/en/about-semi", desc: "SEMI is the global industry association for the electronics manufacturing supply chain, with 3,000+ member companies spanning materials, equipment, IC design, manufacturing, and OSAT." },
+      { label: "Products/Market Intelligence", url: "https://www.semi.org/en/products-services/market-intelligence", desc: "Quarterly/annual statistical reports, forecasts, and white papers on semiconductor equipment, materials, and component markets — one of the most authoritative industry data sources." },
+      { label: "Global Events", url: "https://www.semi.org/en/events", desc: "SEMICON exhibitions (Taiwan, US, Europe, Japan, Korea, China) are the world's most important semiconductor trade shows, gathering global supply chain players and showcasing technology trends." },
+      { label: "SEMI Standards", url: "https://www.semi.org/en/products-services/semi-standards", desc: "Develops global standards for semiconductor manufacturing equipment and materials (wafer sizes, interface specs), ensuring supply chain interoperability and process consistency worldwide." },
+      { label: "Advocacy — Government Relations", url: "https://www.semi.org/en/advocacy", desc: "Represents the semiconductor industry in policy advocacy, including CHIPS Act subsidies, supply chain security, workforce development, and other government relations activities." },
+    ];
+    const wsts_links_zh = [
+      { label: "關於 WSTS — 組織簡介", url: "https://www.wsts.org/65/WSTS", desc: "WSTS（世界半導體貿易統計）是由全球70餘家主要半導體廠商共同成立的非營利組織，專責彙整全球半導體銷售額月度/年度統計數據，是全球市場規模的官方口徑。" },
+      { label: "市場統計報告 (Market Statistics)", url: "https://www.wsts.org/76/Subscription-Service", desc: "提供全球半導體市場月度銷售數據，依產品類型（Discrete、Optoelectronics、Sensors、ICs）與地區分類。訂閱服務是業界決策最重要的數據依據。" },
+      { label: "新聞稿與預測 (Press Releases)", url: "https://www.wsts.org/61/Recent-News-Release", desc: "每季發布全球半導體銷售額新聞稿，以及春季/秋季業界景氣預測報告（Spring Forecast / Fall Forecast），是追蹤半導體產業景氣循環的核心指標。" },
+      { label: "WSTS 會員名單", url: "https://www.wsts.org/65/WSTS", desc: "成員包括英特爾、三星、台積電、英偉達、高通、超微等全球主要半導體廠商，代表性極高，統計數據覆蓋全球市場約80-90%的銷售額。" },
+    ];
+    const wsts_links_en = [
+      { label: "About WSTS — General Overview", url: "https://www.wsts.org/65/WSTS", desc: "WSTS (World Semiconductor Trade Statistics) is a nonprofit organization founded by 70+ major semiconductor companies, providing the official global semiconductor sales statistics on a monthly/annual basis." },
+      { label: "Service/Market Statistics", url: "https://www.wsts.org/76/Subscription-Service", desc: "Provides monthly global semiconductor market sales data by product category (Discrete, Optoelectronics, Sensors, ICs) and region. The subscription service is the most critical data source for industry decision-making." },
+      { label: "Press Releases & Forecasts", url: "https://www.wsts.org/61/Recent-News-Release", desc: "Quarterly press releases on global semiconductor sales plus Spring/Fall industry forecasts — core indicators for tracking semiconductor industry business cycles." },
+      { label: "WSTS Member Companies", url: "https://www.wsts.org/65/WSTS", desc: "Members include Intel, Samsung, TSMC, NVIDIA, Qualcomm, AMD, and other major global chipmakers, with coverage representing approximately 80-90% of global semiconductor sales." },
+    ];
+    const other_links_zh = [
+      { cat: "產業分析與媒體", icon: "📊", items: [
+        { label: "IC Insights (Knometa Research)", url: "https://www.icinsights.com/", desc: "全球晶圓廠投資、IC市場佔有率最受引用的獨立研究機構，提供深度年度報告。" },
+        { label: "TechInsights — 晶片拆解分析", url: "https://www.techinsights.com/", desc: "全球最知名的晶片逆向工程分析機構，提供台積電/三星/英特爾製程節點的詳細技術比較。" },
+        { label: "AnandTech / Tom's Hardware", url: "https://www.anandtech.com/", desc: "高品質處理器與GPU技術評測媒體，提供深度矽晶片架構分析（AnandTech已轉為靜態存檔）。" },
+        { label: "SemiAnalysis（Substack）", url: "https://www.semianalysis.com/", desc: "半導體產業深度研究電子報，專注AI晶片、先進封裝、供應鏈地緣政治分析，業界高度引用。" },
+      ]},
+      { cat: "政府與政策", icon: "🏛️", items: [
+        { label: "美國商務部 BIS — 出口管制", url: "https://www.bis.gov/semiconductors", desc: "掌管美國半導體出口管制規則（EAR），包括對中國的晶片禁令、實體清單管理。" },
+        { label: "歐盟半導體法案", url: "https://ec.europa.eu/commission/presscorner/detail/en/ip_22_1106", desc: "歐盟《歐洲晶片法案》官方頁面，提供法規全文、目標與執行進度。" },
+        { label: "台灣經濟部 — 半導體產業政策", url: "https://www.moea.gov.tw/", desc: "台灣經濟部對半導體產業的政策支持、補貼措施與產業發展方向。" },
+      ]},
+      { cat: "影片與公開課程", icon: "🎬", items: [
+        { label: "How a CPU is Made — Intel（YouTube）", url: "https://www.youtube.com/watch?v=d9SWNLZvA8g", desc: "英特爾官方製作的晶片製程教育影片，生動展示從矽晶圓到成品CPU的完整製造過程。" },
+        { label: "ASML：How EUV Works（YouTube）", url: "https://www.youtube.com/watch?v=dqvMCEBz5X8", desc: "ASML官方解說EUV極紫外光微影技術的工作原理，適合深入理解製程節點突破的關鍵設備。" },
+        { label: "TSMC 官方頻道（YouTube）", url: "https://www.youtube.com/@tsmc", desc: "台積電官方YouTube頻道，收錄技術講解、創辦人演講、企業永續報告等官方影片。" },
+        { label: "MIT OpenCourseWare — VLSI設計", url: "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/", desc: "MIT公開課程，涵蓋數位系統設計、邏輯電路到VLSI晶片設計基礎，適合希望深入技術面的學習者。" },
+      ]},
+    ];
+    const other_links_en = [
+      { cat: "Industry Analysis & Media", icon: "📊", items: [
+        { label: "IC Insights (Knometa Research)", url: "https://www.icinsights.com/", desc: "The most widely cited independent research firm for global wafer fab investment and IC market share, providing in-depth annual reports." },
+        { label: "TechInsights — Chip Teardown Analysis", url: "https://www.techinsights.com/", desc: "The world's foremost chip reverse engineering and analysis firm, providing detailed technical comparisons of TSMC/Samsung/Intel process nodes." },
+        { label: "SemiAnalysis (Substack)", url: "https://www.semianalysis.com/", desc: "A deeply researched semiconductor industry newsletter focused on AI chips, advanced packaging, and geopolitical supply chain analysis, highly cited in the industry." },
+        { label: "AnandTech / Tom's Hardware", url: "https://www.anandtech.com/", desc: "High-quality processor and GPU technical review media with deep silicon architecture analysis (AnandTech is now a static archive)." },
+      ]},
+      { cat: "Government & Policy", icon: "🏛️", items: [
+        { label: "US BIS — Export Controls", url: "https://www.bis.gov/semiconductors", desc: "Administers US semiconductor export control rules (EAR), including China chip bans and Entity List management." },
+        { label: "EU Chips Act", url: "https://ec.europa.eu/commission/presscorner/detail/en/ip_22_1106", desc: "Official EU European Chips Act page with full regulatory text, targets, and implementation progress." },
+        { label: "Taiwan MOEA — Semiconductor Policy", url: "https://www.moea.gov.tw/", desc: "Taiwan Ministry of Economic Affairs' semiconductor industry policy support, subsidies, and development directions." },
+      ]},
+      { cat: "Videos & Open Courses", icon: "🎬", items: [
+        { label: "How a CPU is Made — Intel (YouTube)", url: "https://www.youtube.com/watch?v=d9SWNLZvA8g", desc: "Intel's official educational video on chip manufacturing, vividly showing the complete process from silicon wafer to finished CPU." },
+        { label: "ASML: How EUV Works (YouTube)", url: "https://www.youtube.com/watch?v=dqvMCEBz5X8", desc: "ASML's official explanation of how EUV extreme ultraviolet lithography works, ideal for understanding the key equipment behind process node breakthroughs." },
+        { label: "TSMC Official Channel (YouTube)", url: "https://www.youtube.com/@tsmc", desc: "TSMC's official YouTube channel featuring technology explainers, founder speeches, and sustainability reports." },
+        { label: "MIT OpenCourseWare — VLSI Design", url: "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/", desc: "MIT open courseware covering digital systems design, logic circuits, and VLSI chip design fundamentals for those who want to go deeper on the technical side." },
+      ]},
+    ];
+
+    const semi_links = lang==='zh' ? semi_links_zh : semi_links_en;
+    const wsts_links = lang==='zh' ? wsts_links_zh : wsts_links_en;
+    const other_links = lang==='zh' ? other_links_zh : other_links_en;
+
+    const LinkCard = ({label, url, desc}) => (
+      <a href={url} target="_blank" rel="noopener noreferrer"
+        className="block bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] hover:shadow-md transition-all group">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <span className="font-bold font-serif text-sm text-[#004030] dark:text-[#D8C3A5] group-hover:underline leading-snug">{label}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5 text-slate-400 group-hover:text-[#004030] dark:group-hover:text-[#D8C3A5]"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
+      </a>
+    );
+
+    return (
+      <div className="space-y-10 animate-fade-in">
+        <div>
+          <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.m6_title}</h2>
+          <p className="mt-4 text-slate-600 dark:text-slate-400">{t.m6_desc}</p>
+        </div>
+
+        {/* SEMI */}
+        <div>
+          <div className="flex items-center gap-4 mb-5">
+            <a href="https://www.semi.org/en" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-3 bg-[#004030] hover:bg-[#002b20] transition-colors text-white px-5 py-2.5 rounded-xl shadow font-bold font-serif text-base">
+              <span className="text-[#D8C3A5] text-xl font-black">SEMI</span>
+              <span className="text-sm opacity-80">{lang==='zh'?'官方網站':'Official Website'}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{lang==='zh'?'全球半導體製造與供應鏈產業協會':'Global association for the semiconductor manufacturing supply chain'}</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            {semi_links.map((l,i)=><LinkCard key={i} {...l}/>)}
+          </div>
+        </div>
+
+        {/* WSTS */}
+        <div>
+          <div className="flex items-center gap-4 mb-5">
+            <a href="https://www.wsts.org/65/WSTS" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-3 bg-[#004030] hover:bg-[#002b20] transition-colors text-white px-5 py-2.5 rounded-xl shadow font-bold font-serif text-base">
+              <span className="text-[#D8C3A5] text-xl font-black">WSTS</span>
+              <span className="text-sm opacity-80">{lang==='zh'?'官方網站':'Official Website'}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{lang==='zh'?'世界半導體貿易統計組織，全球市場銷售數據官方來源':'World Semiconductor Trade Statistics, the official source for global market sales data'}</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            {wsts_links.map((l,i)=><LinkCard key={i} {...l}/>)}
+          </div>
+        </div>
+
+        {/* Other Resources */}
+        <div>
+          <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-5">{lang==='zh'?'其他精選資源':'Other Curated Resources'}</h3>
+          <div className="space-y-8">
+            {other_links.map((sec,si)=>(
+              <div key={si}>
+                <h4 className="flex items-center gap-2 text-base font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">
+                  <span>{sec.icon}</span>{sec.cat}
+                </h4>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {sec.items.map((l,i)=><LinkCard key={i} {...l}/>)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 rounded-xl p-5 border border-[#004030]/20 dark:border-[#D8C3A5]/20">
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            {lang==='zh'
+              ? '⚠️ 以上外部連結均指向各組織官方網站，部分報告與統計數據需付費訂閱。影片連結將開啟 YouTube。建議在深入研讀各模組內容後，搭配這些一手資料進一步印證與延伸。'
+              : '⚠️ All external links above point to official organizational websites. Some reports and statistics require paid subscriptions. Video links will open YouTube. We recommend exploring these primary sources after thoroughly studying each module to further verify and extend your learning.'}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  // ── Module Content Renderer ──────────────────────────────────
+  const renderContent = () => {
+    const fade = "animate-fade-in";
+    const H2 = ({children}) => <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{children}</h2>;
+    const Quote = ({children}) => <p className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg italic font-serif text-slate-700 dark:text-slate-300">{children}</p>;
+
+    switch(module) {
+      case 0: return (
+        <div className={`space-y-8 text-lg leading-relaxed text-slate-700 dark:text-slate-300 ${fade}`}>
+          <div className="bg-[#004030] dark:bg-slate-800 rounded-2xl p-8 text-white">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#D8C3A5] mb-3">{lang==='zh'?'課程簡介':'Course Introduction'}</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-black text-white mb-4">{t.m0_title}</h2>
+            <p className="text-[#D8C3A5]/90 text-base leading-relaxed">{t.m0_intro}</p>
+          </div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border-l-4 border-[#D8C3A5] shadow-sm">
+            <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-3">{t.m0_why}</h3>
+            <p className="text-base text-slate-700 dark:text-slate-300">{t.m0_why_desc}</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {t.m0_stats.map((s,i)=>(
+              <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+                <div className="text-2xl md:text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5] mb-1">{s.val}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{s.label}</div>
+              </div>
+            ))}
+          </div>
+          <div>
+            <h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">{lang==='zh'?'課程模組':'Course Modules'}</h3>
+            <div className="space-y-3">
+              {t.m0_modules.map((m,i)=>(
+                <button key={i} onClick={()=>setModule(i+1)}
+                  className="w-full flex items-center gap-5 bg-white dark:bg-slate-800 rounded-xl px-6 py-4 shadow-sm border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] hover:shadow-md transition-all text-left group">
+                  <div className="text-3xl font-black font-serif text-[#D8C3A5] dark:text-[#004030]/60 w-10 shrink-0 group-hover:text-[#004030] dark:group-hover:text-[#D8C3A5] transition-colors">{m.num}</div>
+                  <div className="flex-1">
+                    <div className="font-bold font-serif text-[#004030] dark:text-[#D8C3A5] text-base mb-1">{m.title}</div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{m.desc}</div>
+                  </div>
+                  <IconChevronRight size={20} className="text-slate-300 dark:text-slate-600 group-hover:text-[#004030] dark:group-hover:text-[#D8C3A5] transition-colors shrink-0"/>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <button onClick={()=>setModule(1)}
+              className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold hover:bg-[#002b20] dark:hover:bg-white transition-colors flex items-center uppercase text-sm tracking-wider shadow-md rounded-lg">
+              {t.m0_start}
+            </button>
+          </div>
+        </div>
+      );
+      case 1: return (
+        <div className={`space-y-6 text-lg leading-relaxed text-slate-700 dark:text-slate-300 ${fade}`}>
+          <H2>{t.m1_title}</H2>
+          <p>{t.m1_p1}</p>
+          <p>{t.m1_p2}</p>
+          <p>{t.m1_p3}</p>
+          <div className="relative border-l-2 border-[#D8C3A5] ml-4 md:ml-8 mt-8 space-y-8">
+            {[{title:t.m1_era1,desc:t.m1_era1_desc,hi:false},{title:t.m1_era2,desc:t.m1_era2_desc,hi:false},{title:t.m1_era3,desc:t.m1_era3_desc,hi:true}].map((s,i)=>(
+              <div key={i} className="pl-8 relative">
+                <div className={`absolute -left-[17px] top-1 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${s.hi?'bg-[#004030] text-[#D8C3A5] ring-4 ring-white dark:ring-slate-900':'bg-[#D8C3A5] text-[#004030]'}`}>{i+1}</div>
+                <div className={`p-5 rounded-xl ${s.hi?'bg-[#004030]/5 border border-[#004030]/20 dark:bg-[#004030]/30':'bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}>
+                  <h4 className="font-bold font-serif text-xl text-[#004030] dark:text-[#D8C3A5] mb-2">{s.title}</h4>
+                  <p className="text-base">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-[#004030] text-[#D8C3A5] p-5 rounded-xl flex items-start shadow-md mt-6">
+            <IconTrendingUp className="mr-4 shrink-0 mt-1 text-[#D8C3A5]" size={28}/>
+            <div><h4 className="font-bold font-serif text-lg mb-1">{t.m1_highlight}</h4><p className="text-sm opacity-90">{t.m1_highlight_desc}</p></div>
+          </div>
+          <div className="mt-8"><h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t.m1_terms.map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div>
+          </div>
+          <ModuleQuiz questions={t.m1_q} t={t} moduleId={1} onQuizSubmit={handleQuizSubmit}/>
+        </div>
+      );
+      case 2: return (
+        <div className={`space-y-6 text-lg leading-relaxed text-slate-700 dark:text-slate-300 ${fade}`}>
+          <H2>{t.m2_title}</H2>
+          <p>{t.m2_p1}</p>
+          <p>{t.m2_p2}</p>
+          <p>{t.m2_p3}</p>
+          <div className="mt-8">
+            <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-4">{t.m2_tech1}</h3>
+            <div className="overflow-x-auto rounded-xl border-2 border-[#004030] dark:border-[#D8C3A5] shadow-md">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#004030] text-white">
+                  <tr>
+                    <th className="p-3 font-bold">{lang==='zh'?'架構':'Architecture'}</th>
+                    <th className="p-3 font-bold">{lang==='zh'?'製程節點':'Process Node'}</th>
+                    <th className="p-3 font-bold">{lang==='zh'?'特點':'Key Feature'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {t.m2_tech1_items.map((row,i)=>(
+                    <tr key={i} className={i%2===0?'bg-white dark:bg-slate-800':'bg-slate-50 dark:bg-slate-700/50'}>
+                      <td className="p-3 font-bold font-serif text-[#004030] dark:text-[#D8C3A5]">{row.era}</td>
+                      <td className="p-3 font-mono text-slate-600 dark:text-slate-400">{row.nm}</td>
+                      <td className="p-3 text-slate-700 dark:text-slate-300">{row.desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="mt-8"><h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t.m2_terms.map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div>
+          </div>
+          <ModuleQuiz questions={t.m2_q} t={t} moduleId={2} onQuizSubmit={handleQuizSubmit}/>
+        </div>
+      );
+      case 3: return (
+        <div className={`space-y-6 text-lg leading-relaxed text-slate-700 dark:text-slate-300 ${fade}`}>
+          <H2>{t.m3_title}</H2>
+          <p>{t.m3_p1}</p>
+          <Quote>{t.m3_p2}</Quote>
+          {[
+            { label: lang==='zh'?'上游：設備與材料':'Upstream: Equipment & Materials', items: t.m3_upstream, color: 'border-amber-400' },
+            { label: lang==='zh'?'中游：晶圓製造':'Midstream: Wafer Manufacturing', items: t.m3_midstream, color: 'border-[#004030] dark:border-[#D8C3A5]' },
+            { label: lang==='zh'?'下游：IC設計與封測':'Downstream: IC Design & OSAT', items: t.m3_downstream, color: 'border-blue-400' },
+          ].map((sec,si)=>(
+            <div key={si} className="mt-6">
+              <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-4">{sec.label}</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                {sec.items.map((item,i)=>(
+                  <div key={i} className={`bg-white dark:bg-slate-800 p-5 rounded-xl border-l-4 ${sec.color} shadow-sm hover:shadow-md transition-shadow`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold font-serif text-base text-[#004030] dark:text-[#D8C3A5]">{item.name}</h4>
+                      <span className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-full ml-2 shrink-0">{item.role}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="mt-8"><h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t.m3_terms.map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div>
+          </div>
+          <ModuleQuiz questions={t.m3_q} t={t} moduleId={3} onQuizSubmit={handleQuizSubmit}/>
+        </div>
+      );
+      case 4: return (
+        <div className={`space-y-6 text-lg leading-relaxed text-slate-700 dark:text-slate-300 ${fade}`}>
+          <H2>{t.m4_title}</H2>
+          <p>{t.m4_p1}</p>
+          <p>{t.m4_p2}</p>
+          <div className="mt-6 space-y-4">
+            {t.m4_countries.map((c,i)=>(
+              <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+                <h4 className="font-bold font-serif text-lg text-[#004030] dark:text-[#D8C3A5] mb-3">{c.country}</h4>
+                <div className="grid md:grid-cols-3 gap-3 text-sm">
+                  <div><span className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide text-xs block mb-1">{lang==='zh'?'核心優勢':'Strengths'}</span><p className="text-slate-700 dark:text-slate-300">{c.strength}</p></div>
+                  <div><span className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide text-xs block mb-1">{lang==='zh'?'代表廠商':'Champions'}</span><p className="text-slate-700 dark:text-slate-300">{c.champion}</p></div>
+                  <div><span className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide text-xs block mb-1">{lang==='zh'?'主要政策':'Policy'}</span><p className="text-slate-700 dark:text-slate-300">{c.policy}</p></div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                  <span className="font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide text-xs block mb-1">{lang==='zh'?'主要風險':'Key Risk'}</span>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{c.risk}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8"><h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t.m4_terms.map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div>
+          </div>
+          <ModuleQuiz questions={t.m4_q} t={t} moduleId={4} onQuizSubmit={handleQuizSubmit}/>
+        </div>
+      );
+      case 5: return (
+        <div className={`space-y-6 text-lg leading-relaxed text-slate-700 dark:text-slate-300 ${fade}`}>
+          <H2>{t.m5_title}</H2>
+          <p>{t.m5_p1}</p>
+          <p>{t.m5_p2}</p>
+          <div className="grid md:grid-cols-2 gap-5 mt-6">
+            {t.m5_impact_items.map((item,i)=>(
+              <div key={i} className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="font-bold font-serif text-base text-[#004030] dark:text-[#D8C3A5] mb-2">{item.sector}</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="bg-[#004030] text-[#D8C3A5] p-5 rounded-xl flex items-start shadow-md mt-4">
+            <IconAlertTriangle className="mr-4 shrink-0 mt-1" size={28}/>
+            <div><h4 className="font-bold font-serif text-lg mb-1">{t.m5_alert}</h4><p className="text-sm opacity-90">{t.m5_alert_desc}</p></div>
+          </div>
+          <div className="mt-8"><h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t.m5_terms.map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div>
+          </div>
+          <ModuleQuiz questions={t.m5_q} t={t} moduleId={5} onQuizSubmit={handleQuizSubmit}/>
+        </div>
+      );
+      case 6: return renderResources();
+      case 7: return renderLab();
+      case 8: return renderAnalytics();
+      default: return null;
+    }
+  };
+
+  const TTSBar = ({mobile=false}) => (
+    <div className={`${mobile?'flex md:hidden':'hidden md:flex'} items-center bg-white dark:bg-slate-800 rounded-full px-4 py-2 shadow-sm border border-slate-200 dark:border-slate-700 justify-between ${mobile?'mb-6':''}`}>
+      <span className="text-sm font-bold text-slate-600 dark:text-slate-300 flex items-center"><IconGlobe size={16} className="mr-2"/>{t.audio_read}</span>
+      <div className="flex space-x-2">
+        {ttsState!=='playing'
+          ? <button onClick={()=>handleTTS('play')} className="p-2 bg-[#004030]/10 dark:bg-[#D8C3A5]/10 rounded-full text-[#004030] dark:text-[#D8C3A5]"><IconPlay size={16} fill="currentColor"/></button>
+          : <button onClick={()=>handleTTS('pause')} className="p-2 bg-[#004030]/10 dark:bg-[#D8C3A5]/10 rounded-full text-[#004030] dark:text-[#D8C3A5]"><IconPause size={16} fill="currentColor"/></button>
+        }
+        <button onClick={()=>handleTTS('stop')} className="p-2 bg-slate-100 dark:bg-slate-700 rounded-full text-slate-600 dark:text-slate-300"><IconSquare size={16} fill="currentColor"/></button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="bg-[#004030] dark:bg-slate-900 text-white sticky top-0 z-50 shadow-lg border-b border-[#D8C3A5]/30">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <button className="p-1 rounded hover:bg-white/10 transition-colors" onClick={()=>setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+              {menuOpen ? <IconX size={22}/> : <IconMenu size={22}/>}
+            </button>
+            <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center space-x-2 group hover:opacity-80 transition-opacity text-left">
+              <div className="font-serif font-black text-2xl text-[#D8C3A5]">S</div>
+              <div className="hidden sm:block">
+                <h1 className="font-serif font-bold text-sm md:text-base leading-tight">{t.title}</h1>
+                <p className="text-[10px] text-[#D8C3A5]/70">{t.subtitle}</p>
+              </div>
+            </button>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button onClick={()=>{setLang(l=>l==='zh'?'en':'zh');}} className="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">
+              {lang==='zh'?'EN':'中文'}
+            </button>
+            <button onClick={()=>setIsDark(d=>!d)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+              {isDark?<IconSun size={18}/>:<IconMoon size={18}/>}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 py-6">
+        <div className="flex gap-6 flex-1">
+          {/* Sidebar */}
+          <aside className={`${menuOpen?'flex':'hidden'} md:flex fixed inset-0 z-40 md:relative md:inset-auto md:z-auto flex-col w-64 shrink-0`}>
+            {menuOpen && <div className="absolute inset-0 bg-black/40 md:hidden" onClick={()=>setMenuOpen(false)}/>}
+            <div className="relative w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-3 md:sticky md:top-24 max-h-[calc(100vh-8rem)] overflow-y-auto">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400 px-3 py-2">{t.nav_modules}</p>
+              <nav className="space-y-1">
+                {modulesList.map(m=>(
+                  <button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}}
+                    className={`w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] dark:bg-[#D8C3A5]/20 text-white dark:text-[#D8C3A5] border border-[#D8C3A5]/30':'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200'}`}>
+                    <span className={`mr-3 ${module===m.id?'text-[#D8C3A5]':'opacity-50'}`}>{m.icon}</span>
+                    {m.title}
+                    {module===m.id && <IconChevronRight size={16} className="ml-auto opacity-50"/>}
+                  </button>
+                ))}
+              </nav>
+              <TTSBar mobile={false}/>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0 pb-16" onClick={handleMainClick}>
+            <TTSBar mobile={true}/>
+            <div ref={contentRef}>{renderContent()}</div>
+            <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-300 dark:border-slate-700">
+              <button onClick={()=>setModule(m=>Math.max(0,m-1))} disabled={module===0}
+                className="px-6 py-3 rounded-none font-serif font-bold text-slate-500 dark:text-slate-400 hover:text-[#004030] dark:hover:text-[#D8C3A5] disabled:opacity-0 transition-colors flex items-center uppercase text-sm tracking-wider">
+                ← {t.nav_prev}
+              </button>
+              <button onClick={()=>setModule(m=>Math.min(TOTAL-1,m+1))} disabled={module===TOTAL-1}
+                className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold hover:bg-[#002b20] dark:hover:bg-white disabled:opacity-0 transition-colors flex items-center uppercase text-sm tracking-wider shadow-md">
+                {t.nav_next} <IconArrowRight size={16} className="ml-2"/>
+              </button>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-[#004030] dark:bg-slate-950 text-slate-300 dark:text-slate-400 border-t border-[#D8C3A5]">
+        <div className="max-w-7xl mx-auto px-4 h-8 flex justify-between items-center text-[10px] sm:text-xs">
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <div className="font-serif font-bold text-[#D8C3A5] hidden sm:block">S</div>
+            <span className="truncate">{t.copyright} {t.date}</span>
+          </div>
+          <div className="flex items-center space-x-3 md:space-x-4">
+            <a href="https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo" target="_blank" rel="noopener noreferrer" className="text-[#D8C3A5] font-serif hover:text-white border-b border-transparent hover:border-[#D8C3A5] transition-all truncate">Architect: Prof. Shihmin Lo</a>
+            <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center uppercase tracking-widest hover:text-white transition-colors border-l border-slate-600 pl-3">
+              <IconChevronUp size={12} className="md:mr-1"/><span className="hidden sm:inline">TOP</span>
+            </button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
